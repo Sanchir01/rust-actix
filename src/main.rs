@@ -30,9 +30,9 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
         App::new().service(greet)
-    }).bind("0.0.0.0:8000")?.run().await
+    }).bind("0.0.0.0:8000")?.workers(2).run().await
 }
 #[get("/hello")]
-async fn greet(name: web::Path<String>) -> impl Responder {
-    format!("Hello {}!", name)
+async fn greet() -> impl Responder {
+    "Hello sanchir!".to_string()
 }
