@@ -1,16 +1,18 @@
-use actix_web::{get, App, HttpServer,Responder,web};
+use std::fmt::format;
+use actix_web::{get, App, HttpServer, Responder, web, HttpResponse};
 use dotenvy::dotenv;
 use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, PgPool};
+use diesel::{pg::PgConnection,r2d2::{ Pool, self,ConnectionManager} ,prelude::*};
 
-#[derive(Serialize,FromRow)]
+
+#[derive(Queryable,Serialize)]
 struct Item {
     id:i32,
     name:String,
     description:String,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize,Deserialize)]
 struct RequestItem{
     name:String,
     description:String,
@@ -18,7 +20,7 @@ struct RequestItem{
 
 #[derive(Clone)]
 struct AppState{
-    db_pool:PgPool
+    db_pool:Pool<ConnectionManager<PgConnection>>
 }
 
 impl AppState{}
@@ -29,10 +31,19 @@ async fn main() -> std::io::Result<()> {
     println!("Starting server at http://localhost:8000");
 
     HttpServer::new(|| {
-        App::new().service(greet)
-    }).bind("0.0.0.0:8000")?.workers(2).run().await
+        App::new()
+            .service(greet)
+            .service(greet_name)
+    })
+        .bind("0.0.0.0:8000")?
+        .workers(4).run().await
 }
 #[get("/hello")]
 async fn greet() -> impl Responder {
-    "Hello sanchir!".to_string()
+    HttpResponse::Ok().body("Hello world!")
+}
+
+#[get("/greet/{id}")]
+async fn greet_name(id: web::Path<u32>) -> impl Responder {
+    format!("Hello user number {id}")
 }
