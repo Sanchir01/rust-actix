@@ -13,6 +13,9 @@ build:
 update:
 	cargo update
 
+build-prod:
+	cargo build --release
+
 docker-build:
 	docker build -t . actix-rest
 
@@ -21,3 +24,4 @@ docker: docker-build
 
 compose:
 	docker-compose up
+
