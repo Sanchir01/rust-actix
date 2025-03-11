@@ -1,4 +1,3 @@
-use crate::app::envstate::AppState;
 use axum::{
     extract::{Path, State},
     response::IntoResponse,
@@ -11,7 +10,8 @@ use sqlx::PgPool;
 use std::env;
 use tokio::{main, net};
 use utoipa::{OpenApi, ToSchema};
-use utoipa_swagger_ui::SwaggerUi;
+mod servers;
+use crate::servers::http::{server::run_http_server, AppState};
 #[derive(Serialize, Deserialize, ToSchema)]
 struct Item {
     id: i32,
@@ -53,31 +53,20 @@ async fn main() -> std::io::Result<()> {
 
     let listener = net::TcpListener::bind("0.0.0.0:5000").await.unwrap();
 
-    let swagger = SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi());
+
 
     let api_routes = Router::new()
         .route("/hello", get(greet).with_state(app_state.clone()))
-        .route("/name", get(greet_name))
-        .merge(swagger);
+        .route("/name", get(greet_name));
+
 
     let app = Router::new().nest("/api", api_routes);
 
     serve(listener, app.into_make_service()).await.unwrap();
+
+    // let swagger = SwaggerUi::new("/swagger-ui/{_:.*}")
+    //     .url("/api-docs/openapi.json", ApiDoc::openapi());
     Ok(())
 }
 
-#[utoipa::path(
-    get,
-    path = "/hello",
-    responses(
-        (status = 200, description = "Hello World"),
-        (status = 404)
-    )
-)]
-async fn greet() -> impl IntoResponse {
-    "Hello world"
-}
 
-async fn greet_name(Path(id): Path<u32>) -> impl IntoResponse {
-    format!("Hello user number {id}")
-}
