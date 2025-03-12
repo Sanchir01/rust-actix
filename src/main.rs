@@ -1,12 +1,6 @@
-use axum::{
-    extract::{Path, State},
-    response::IntoResponse,
-    routing::get,
-    serve, Router,
-};
 use dotenvy::dotenv;
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
+use sqlx::postgres::PgPool;
 use std::env;
 use utoipa::ToSchema;
 mod servers;
@@ -35,11 +29,12 @@ async fn main() -> std::io::Result<()> {
     println!("Starting server at http://localhost:5000");
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set");
+    println!("db url {database_url}");
     let db_pool = PgPool::connect(&database_url)
         .await
         .expect("Failed to connect to Postgres");
-    let app_state = AppState { db_pool };
-    run_http_server();
+
+    run_http_server().await;
     // let swagger = SwaggerUi::new("/swagger-ui/{_:.*}")
     //     .url("/api-docs/openapi.json", ApiDoc::openapi());
     Ok(())

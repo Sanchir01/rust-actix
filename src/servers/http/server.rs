@@ -1,4 +1,3 @@
-use sqlx::PgPool;
 use tokio::net::TcpListener;
 
 use axum::{
@@ -8,15 +7,12 @@ use axum::{
     serve, Router,
 };
 
-#[derive(Clone)]
-struct AppState {
-    db_pool: PgPool,
-}
+
 pub async fn run_http_server() {
     let listener = TcpListener::bind("0.0.0.0:5000")
         .await
         .expect("Failed to bind port");
-    let routers = Router::new().route("/hello", get(greet));
+    let routers = Router::new().route("/hello", get(greet)).route("/hello/{id}", get(greet_name));
     let app = Router::new().nest("/api", routers);
 
     serve(listener, app).await.unwrap();
