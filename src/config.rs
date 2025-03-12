@@ -46,4 +46,12 @@ impl Config{
             }
         })
     }
+
+    pub fn get_database_config(&self) -> Option<&DatabaseConfig> {
+        self.database.as_ref()
+    }
+
+    pub fn get_http_config(&self) -> Option<&HTTPServerConfig> {
+        self.http_server.as_ref()
+    }
 }

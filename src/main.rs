@@ -7,7 +7,8 @@ mod servers;
 use crate::servers::http::server::run_http_server;
 mod config;
 use crate::config::Config;
-
+mod database;
+use crate::database::db::init_primary_db;
 
 #[derive(Serialize, Deserialize, ToSchema)]
 struct Item {
@@ -41,7 +42,7 @@ async fn main() -> std::io::Result<()> {
     let db_pool = PgPool::connect(&database_url)
         .await
         .expect("Failed to connect to Postgres");
-
+    let pool = init_primary_db(&config).await;
     run_http_server().await;
     // let swagger = SwaggerUi::new("/swagger-ui/{_:.*}")
     //     .url("/api-docs/openapi.json", ApiDoc::openapi());
