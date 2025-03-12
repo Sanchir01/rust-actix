@@ -7,8 +7,8 @@ mod servers;
 use crate::servers::http::server::run_http_server;
 mod config;
 use crate::config::Config;
-mod database;
-use crate::database::db::init_primary_db;
+mod app;
+use crate::app::db::init_primary_db;
 
 #[derive(Serialize, Deserialize, ToSchema)]
 struct Item {
