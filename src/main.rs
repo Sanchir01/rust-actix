@@ -1,3 +1,4 @@
+use crate::servers::http::{server::run_http_server, AppState};
 use axum::{
     extract::{Path, State},
     response::IntoResponse,
@@ -10,8 +11,6 @@ use sqlx::PgPool;
 use std::env;
 use tokio::{main, net};
 use utoipa::{OpenApi, ToSchema};
-mod servers;
-use crate::servers::http::{server::run_http_server, AppState};
 #[derive(Serialize, Deserialize, ToSchema)]
 struct Item {
     id: i32,
@@ -53,12 +52,9 @@ async fn main() -> std::io::Result<()> {
 
     let listener = net::TcpListener::bind("0.0.0.0:5000").await.unwrap();
 
-
-
     let api_routes = Router::new()
         .route("/hello", get(greet).with_state(app_state.clone()))
         .route("/name", get(greet_name));
-
 
     let app = Router::new().nest("/api", api_routes);
 
@@ -68,5 +64,3 @@ async fn main() -> std::io::Result<()> {
     //     .url("/api-docs/openapi.json", ApiDoc::openapi());
     Ok(())
 }
-
-
