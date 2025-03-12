@@ -1,9 +1,4 @@
-use axum::{
-    extract::{Path, State},
-    response::IntoResponse,
-    routing::get,
-    serve, Router,
-};
+use axum::extract::{Path, State};
 use dotenvy::dotenv;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
