@@ -1,15 +1,21 @@
 use dotenvy::dotenv;
 use serde::{Deserialize, Serialize};
 use simple_logger::SimpleLogger;
-use log::{info, error, warn, debug};
 use sqlx::postgres::PgPool;
 use utoipa::ToSchema;
-use colored::*;
+use slog::{Drain, Logger, o, info,warn };
+use slog_async;
+use slog_async::Async;
+use slog_scope::{set_global_logger, GlobalLoggerGuard};
+use slog_stdlog::StdLog;
+use slog_term::{CompactFormat, TermDecorator};
 mod servers;
 use crate::servers::http::server::run_http_server;
 mod config;
 use crate::config::Config;
 mod app;
+mod logger;
+use crate::logger::init_logger;
 use crate::app::db::init_primary_db;
 
 #[derive(Serialize, Deserialize, ToSchema)]
@@ -40,22 +46,22 @@ async fn main() -> std::io::Result<()> {
 
     println!("Config: {:?}", config);
     let _pool = init_primary_db(&config);
-    SimpleLogger::new()
-        .with_level(log::LevelFilter::Debug) // Уровень логирования
-        .with_colors(true) // Включаем цветной вывод
-        .init()
-        .unwrap();
 
-    // Примеры использования логов
-    info!("This is an info message");
-    error!("This is an error message");
-    warn!("This is a warning message");
-    debug!("This is a debug message");
 
-    // Использование colored для цветного вывода
-    println!("{}", "This is a custom colored message".green());
+    let _guard =init_logger();
+
+    info!(logger(), "🚀 Приложение запущено!");
+    warn!(logger(), "⚠️  Предупреждение!");
+
+
+
+
+
+
     run_http_server().await;
     // let swagger = SwaggerUi::new("/swagger-ui/{_:.*}")
     //     .url("/api-docs/openapi.json", ApiDoc::openapi());
     Ok(())
 }
+
+/// Инициализация глобального логгера

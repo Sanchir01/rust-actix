@@ -11,22 +11,20 @@ dotenvy = "0.15.7"
 serde_json = "1.0.140"
 config = "0.15.9"
 axum = "0.8.1"
-utoipa = {version="4.2.3", features=["axum_extras"]}
-utoipa-swagger-ui = { version = "6.0.0", features = ["axum"]}
+utoipa = {version= "5.3.1", features=["axum_extras"]}
+utoipa-swagger-ui = { version = "9.0.0", features = ["axum"]}
 slog = "2.7.0"
 slog-term = "2.9.1"
 tower-http = "0.6.2"
 toml = "0.8.20"
-log = "0.4.26"
-colored = "3.0.0"
 simple_logger = "5.0.0"
-
-[profile.dev.package.sqlx-macros]
-opt-level = 3
-debug = true
+slog-async = "2.8.0"
+slog-scope = "4.4.0"
+slog-stdlog = "4.1.1"
 
 [profile.release]
 opt-level = 3
-lto = true
+debug = 2
+lto = "fat"
 codegen-units = 1
 strip = true
