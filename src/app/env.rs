@@ -1,7 +1,8 @@
+use sqlx::PgPool;
+
 pub struct Env {
-    pub dbpool: sqlx::Pool<sqlx::Postgres>,
+    pub dbpool: PgPool,
 }
 
-impl Env {
-  
-}
+impl Env {}
+

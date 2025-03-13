@@ -27,7 +27,8 @@ docker: docker-build
 compose:
 	docker-compose up
 
-
+compile:
+	rustc --edition 2024 src/main.rs
 migrations-up:
 	goose -dir migrations postgres "host=localhost user=postgres password=avito port=5432 dbname=postgres sslmode=disable"  up
 
