@@ -12,7 +12,7 @@ pub struct DatabaseConfig {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct HTTPServerConfig{
+pub struct HTTPServerConfig {
     pub host: String,
     pub port: u16,
 }
@@ -23,8 +23,8 @@ pub struct Config {
     pub http_server: Option<HTTPServerConfig>,
 }
 
-impl Config{
-    pub async fn new() -> Self{
+impl Config {
+    pub async fn new() -> Self {
         let config_path = if cfg!(debug_assertions) {
             println!("Debug mode");
             "config/dev.toml"

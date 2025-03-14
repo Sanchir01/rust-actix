@@ -1,23 +1,17 @@
+use crate::app::config::Config;
+use crate::app::db::init_primary_db;
+use crate::servers::http::server::run_http_server;
 use dotenvy::dotenv;
 use serde::{Deserialize, Serialize};
-use simple_logger::SimpleLogger;
-use sqlx::postgres::PgPool;
-use utoipa::ToSchema;
-
-use crate::app::db::init_primary_db;
-use crate::config::Config;
-use crate::servers::http::server::run_http_server;
-use slog::{info, o, Drain, Logger};
+use slog::{Drain, Logger, info, o};
 use slog_async::Async;
-use slog_scope::{set_global_logger, GlobalLoggerGuard,logger};
+use slog_scope::{GlobalLoggerGuard, logger, set_global_logger};
 use slog_term::{CompactFormat, TermDecorator};
+use sqlx::{postgres::PgPool, prelude::FromRow};
 use std::sync::Mutex;
-mod servers;
-mod config;
+use utoipa::ToSchema;
 mod app;
-
-
-
+mod servers;
 
 #[derive(Serialize, Deserialize, ToSchema)]
 struct Item {
@@ -36,6 +30,35 @@ struct RequestItem {
 struct AppState {
     db_pool: PgPool,
 }
+
+#[derive(Debug, Serialize, FromRow)]
+struct User {
+    id: i32,
+    name: String,
+    email: String,
+}
+#[tokio::main]
+async fn main() -> std::io::Result<()> {
+    dotenv().ok().expect("Could not load .env file");
+
+    let config = Config::new().await;
+
+    println!("Config: {:?}", config);
+    let pool = init_primary_db(&config);
+
+    let _guard = init_logger();
+
+    info!(logger(), "Приложение запущено");
+
+    run_http_server().await;
+
+    println!("Starting server at http://localhost:5000");
+
+    // let swagger = SwaggerUi::new("/swagger-ui/{_:.*}")
+    //     .url("/api-docs/openapi.json", ApiDoc::openapi());
+    Ok(())
+}
+
 fn init_logger() -> GlobalLoggerGuard {
     let decorator = TermDecorator::new().build();
     let drain = CompactFormat::new(decorator).build().fuse();
@@ -51,26 +74,11 @@ fn init_logger() -> GlobalLoggerGuard {
 
     guard
 }
-#[tokio::main]
-async fn main() -> std::io::Result<()> {
-    dotenv().ok().expect("Could not load .env file");
+async fn fetch_users(pool: &PgPool) -> Result<Vec<User>, sqlx::Error> {
+    // Выполняем SQL-запрос
+    let users = sqlx::query_as!(User, "SELECT id, name, email FROM user")
+        .fetch_all(pool)
+        .await?;
 
-    println!("Starting server at http://localhost:5000");
-
-    let config = Config::new().await;
-
-    println!("Config: {:?}", config);
-    let _pool = init_primary_db(&config);
-
-    let _guard = init_logger(); // Устанавливаем глобальный логгер
-
-    info!(logger(),"Приложение запущено"); // Логирование через slog
-    log::info!("Привет, мир!");
-
-    run_http_server().await;
-    // let swagger = SwaggerUi::new("/swagger-ui/{_:.*}")
-    //     .url("/api-docs/openapi.json", ApiDoc::openapi());
-    Ok(())
+    Ok(users)
 }
-
-

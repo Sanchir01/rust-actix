@@ -1,2 +1,2 @@
 pub mod db;
-mod env;
+pub mod config;
