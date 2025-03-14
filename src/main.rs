@@ -44,7 +44,7 @@ async fn main() -> std::io::Result<()> {
     let config = Config::new().await;
 
     println!("Config: {:?}", config);
-    let pool = init_primary_db(&config);
+    let pool = init_primary_db(&config).await.expect("Could not initialize database");
 
     let _guard = init_logger();
     let all_users = fetch_users(&pool).await.expect("cant get all users");
@@ -76,7 +76,7 @@ fn init_logger() -> GlobalLoggerGuard {
     guard
 }
 async fn fetch_users(pool: &PgPool) -> Result<Vec<User>, sqlx::Error> {
-    let users = sqlx::query_as!(User, r#"SELECT id, name, email FROM "user""#)
+    let users = sqlx::query_as!(User, "SELECT id, name, email FROM users")
         .fetch_all(pool)
         .await?;
 
