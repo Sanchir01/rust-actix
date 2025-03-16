@@ -1762,6 +1762,7 @@ dependencies = [
  "sqlx",
  "tokio",
  "toml",
+ "tower",
  "tower-http",
  "utoipa",
  "utoipa-swagger-ui",

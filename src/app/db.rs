@@ -41,7 +41,7 @@ pub async fn connect_with_retries(
                     "Failed to connect to the database. Attempt {}/{}. Retrying in 2 seconds...",
                     attempts, max_retries
                 );
-                sleep(Duration::from_secs(2)).await;
+                sleep(Duration::from_secs(5)).await;
             }
         }
     }

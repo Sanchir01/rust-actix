@@ -13,6 +13,7 @@ use std::sync::Mutex;
 use uuid::Uuid;
 mod app;
 mod servers;
+mod feature;
 
 #[derive(Serialize, Deserialize)]
 struct Item {
@@ -80,11 +81,8 @@ async fn main() -> std::io::Result<()> {
     let _guard = init_logger();
 
     info!(logger(), "Приложение запущено");
-
+    info!(logger(), "Starting server at http://localhost:5000");
     run_http_server().await;
-
-    println!("Starting server at http://localhost:5000");
-
     // let swagger = SwaggerUi::new("/swagger-ui/{_:.*}")
     //     .url("/api-docs/openapi.json", ApiDoc::openapi());
     Ok(())
@@ -96,9 +94,9 @@ async fn create_user(
     let item = app_state.create_user_impl(&payload.name)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
     Ok((StatusCode::CREATED, AxumResponseJson(item)))
 }
+
 fn init_logger() -> GlobalLoggerGuard {
     let decorator = TermDecorator::new().build();
     let drain = CompactFormat::new(decorator).build().fuse();
