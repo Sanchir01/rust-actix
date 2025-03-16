@@ -1,28 +1,16 @@
-FROM ubuntu:22.04 AS builder
+FROM rust:1.85 AS builder
 
-RUN apt-get update && apt-get install -y \
-    curl build-essential gcc g++ \
-    libssl-dev pkg-config && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-ENV PATH="/root/.cargo/bin:${PATH}"
-
-WORKDIR /app
-
-COPY . .
+COPY . . 
 
 RUN cargo build --release
 
-FROM ubuntu:22.04 AS runtime
+FROM debian:bookworm-slim
 
-RUN apt-get update && apt-get install -y libssl-dev ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder /app/target/release/my_rust_app /usr/local/bin/my_rust_app
+RUN apt-get update && apt-get install -y libpq5 &&  apt-get install make && rm -rf /var/lib/apt/lists/*
 
 
-WORKDIR /usr/local/bin
+ENV RUST_LOG=info
 
+EXPOSE 5000
 
-CMD ["./my_rust_app"]
+CMD ["make","run-prod"]

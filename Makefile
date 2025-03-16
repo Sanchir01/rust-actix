@@ -36,8 +36,11 @@ update:
 build-prod:
 	cargo build --release
 
+run-prod:
+	cargo run --release
+
 docker-build:
-	docker build -t . actix-rest
+	docker build -t  rust-axum .
 
 docker: docker-build
 	docker-compose up
