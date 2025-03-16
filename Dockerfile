@@ -1,16 +1,17 @@
 FROM rust:1.85 AS builder
 
-COPY . . 
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    bash \
+    git \
+    make \
+    gcc \
+    gettext \
+    musl-dev
+
+COPY . .
 
 RUN cargo build --release
 
-FROM debian:bookworm-slim
-
-RUN apt-get update && apt-get install -y libpq5 &&  apt-get install make && rm -rf /var/lib/apt/lists/*
-
-
-ENV RUST_LOG=info
-
-EXPOSE 5000
-
-CMD ["make","run-prod"]
+CMD ["cargo", "run-prod"]
