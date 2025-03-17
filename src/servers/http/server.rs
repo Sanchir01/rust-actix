@@ -8,7 +8,7 @@ use axum::{
     serve::ListenerExt,
 };
 
-use crate::feature::user::handler;
+use crate::feature::user::handler::get_all_users;
 
 pub async fn run_http_server() {
     let listener = TcpListener::bind("0.0.0.0:5000")
@@ -22,7 +22,8 @@ pub async fn run_http_server() {
 
     let routers = Router::new()
         .route("/hello", get(greet))
-        .route("/hello/{id}", post(greet_name));
+        .route("/hello/{id}", post(greet_name))
+        .route("/test",get(get_all_users) );
     let app = Router::new().nest("/api", routers);
 
     axum::serve(listener, app).await.unwrap();
