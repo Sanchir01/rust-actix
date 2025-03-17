@@ -1,12 +1,10 @@
+use super::service::UserService;
 use axum::{
+    Json,
     http::StatusCode,
     response::{IntoResponse, Response},
-    Json, 
 };
 use simd_json::json;
-use crate::feature::user::entity::User;
-use super::service::UserService;
-
 
 pub struct UserHandler {
     user_service: UserService,
@@ -17,7 +15,6 @@ impl UserHandler {
         Self { user_service }
     }
 
-   
     pub async fn get_all_users(&self) -> Result<Response, Response> {
         // Получаем пользователей из сервиса
         let users = self.user_service.get_all_users().await.map_err(|err| {
@@ -29,7 +26,10 @@ impl UserHandler {
                 .into_response() // Преобразуем в Response
         })?;
 
-        
         Ok((StatusCode::OK, Json(json!(users))).into_response())
     }
+}
+
+pub fn get_all_users(){
+    println!("test");
 }
