@@ -48,7 +48,7 @@ async fn main() -> std::io::Result<()> {
     let config = Config::new().await;
 
     println!("Config: {:?}", config);
-    let _pool = init_primary_db(&config)
+    let pool = init_primary_db(&config)
         .await
         .expect("Could not initialize database");
 
@@ -56,7 +56,7 @@ async fn main() -> std::io::Result<()> {
 
     info!(logger(), "Приложение запущено");
     info!(logger(), "Starting server at http://localhost:5000");
-    run_http_server().await;
+    run_http_server(pool).await;
     // let swagger = SwaggerUi::new("/swagger-ui/{_:.*}")
     //     .url("/api-docs/openapi.json", ApiDoc::openapi());
     Ok(())

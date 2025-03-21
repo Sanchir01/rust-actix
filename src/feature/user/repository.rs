@@ -1,6 +1,7 @@
-use sqlx::{postgres::PgPool};
 use crate::feature::user::entity::User;
+use sqlx::postgres::PgPool;
 
+#[derive(Clone)]
 pub struct UserRepository {
     user_repo: PgPool,
 }

@@ -1,16 +1,17 @@
-use crate::feature::user::entity::User;
-use super::repository::UserRepository;
+use std::sync::Arc;
 
+use tokio::sync::Mutex;
+
+use super::repository::UserRepository;
+use crate::feature::user::entity::User;
+
+#[derive(Clone)]
 pub struct UserService {
-    user_repo: UserRepository,
+    user_repo: Arc<Mutex<UserRepository>>,
 }
 
 impl UserService {
-    pub fn new(user_repo: UserRepository) -> Self {
+    pub fn new(user_repo: Arc<Mutex<UserRepository>>) -> Self {
         Self { user_repo }
-    }
-
-    pub async fn get_all_users(&self) -> Result<Vec<User>, sqlx::Error> {
-        self.user_repo.get_all_users().await
     }
 }
