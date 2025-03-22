@@ -1,13 +1,13 @@
 use crate::feature::user::entity::User;
-use sqlx::postgres::PgPool;
+use sqlx::{Pool, Postgres};
 
 #[derive(Clone)]
 pub struct UserRepository {
-    user_repo: PgPool,
+    user_repo: Pool<Postgres>,
 }
 
 impl UserRepository {
-    pub fn new(user_repo: PgPool) -> Self {
+    pub fn new_user_repository(user_repo: Pool<Postgres>) -> Self {
         Self { user_repo }
     }
     pub async fn get_all_users(&self) -> Result<Vec<User>, sqlx::Error> {

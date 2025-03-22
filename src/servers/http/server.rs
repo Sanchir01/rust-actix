@@ -1,8 +1,8 @@
-use sqlx::Pool;
-use sqlx::Postgres;
 use std::sync::Arc;
-use tokio::{net::TcpListener, sync::Mutex};
+use tokio::net::TcpListener;
 
+use crate::app::handlers::Handlers;
+use crate::feature::user::handler::handle_get_hello;
 use axum::{
     Router,
     extract::Path,
@@ -11,15 +11,7 @@ use axum::{
     serve::ListenerExt,
 };
 
-use crate::feature::user::{
-    handler::UserHandler, repository::UserRepository, service::UserService,
-};
-
-pub async fn run_http_server(db: Pool<Postgres>) {
-    let user_repository = Arc::new(Mutex::new(UserRepository::new(db)));
-    let user_service = Arc::new(Mutex::new(UserService::new(user_repository)));
-    let user_handler = Arc::new(UserHandler::new(user_service.clone()));
-
+pub async fn run_http_server(handlers: Arc<Handlers>) {
     let listener = TcpListener::bind("0.0.0.0:5000")
         .await
         .unwrap()
@@ -29,11 +21,12 @@ pub async fn run_http_server(db: Pool<Postgres>) {
             }
         });
 
+    let user_handlers = handlers.users_handler.clone();
     let routers = Router::new()
         .route("/hello", get(greet))
         .route("/hello/{id}", post(greet_name))
-        .route("/users", get(UserHandler::handle_get_hello))
-        .with_state(user_handler);
+        .route("/users/hello", get(handle_get_hello))
+        .with_state(user_handlers);
 
     let app = Router::new().nest("/api", routers);
 

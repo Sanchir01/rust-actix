@@ -7,11 +7,11 @@ use crate::feature::user::entity::User;
 
 #[derive(Clone)]
 pub struct UserService {
-    user_repo: Arc<Mutex<UserRepository>>,
+    user_repo: Arc<UserRepository>,
 }
 
 impl UserService {
-    pub fn new(user_repo: Arc<Mutex<UserRepository>>) -> Self {
+    pub fn new_user_services(user_repo: Arc<UserRepository>) -> Self {
         Self { user_repo }
     }
 }
