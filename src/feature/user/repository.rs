@@ -24,4 +24,20 @@ impl UserRepository {
             })?;
         Ok(users)
     }
+    pub async fn create_user(&self, title: &str, slug: &str) -> Result<String, sqlx::Error> {
+        let query = r#"
+            INSERT  INTO users (title, slug)
+            VALUES ($1, $2) RETURNING id
+            "#;
+        let user: String = sqlx::query_scalar(query)
+            .bind(title)
+            .bind(slug)
+            .fetch_one(&self.user_repo)
+            .await
+            .map_err(|e| {
+                eprintln!("Error fetching users: {:?}", e);
+                e
+            })?;
+        Ok(user)
+    }
 }

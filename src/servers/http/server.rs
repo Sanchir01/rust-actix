@@ -2,7 +2,7 @@ use std::sync::Arc;
 use tokio::net::TcpListener;
 
 use crate::app::handlers::Handlers;
-use crate::feature::user::handler::{get_users, handle_get_hello};
+use crate::feature::user::handler::{create_user_handler, get_users, handle_get_hello};
 use crate::utils::swagger::setup_swagger;
 use axum::{
     Router,
@@ -23,14 +23,14 @@ pub async fn run_http_server(handlers: Arc<Handlers>) {
         });
 
     let user_handlers = handlers.users_handler.clone();
-    let swagger = setup_swagger();
+    let _swagger = setup_swagger();
     let routers = Router::new()
         .route("/hello/{id}", post(greet_name))
         .route("/users/hello", get(handle_get_hello))
-        .route("/users", get(get_users))
+        .route("/users", get(get_users).post(create_user_handler))
         .with_state(user_handlers);
 
-    let app = Router::new().merge(swagger).nest("/api", routers);
+    let app = Router::new().nest("/api", routers);
 
     axum::serve(listener, app).await.unwrap();
     println!("🚀 Server running on http://localhost:5000");

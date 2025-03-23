@@ -3,7 +3,6 @@ use crate::app::db::init_primary_db;
 use crate::servers::http::server::run_http_server;
 use app::{handlers::Handlers, repositories::Repositories, services::Services};
 use dotenvy::dotenv;
-use feature::user::entity::User;
 use slog::{Drain, Logger, info, o};
 use slog_async::Async;
 use slog_scope::{GlobalLoggerGuard, logger, set_global_logger};
