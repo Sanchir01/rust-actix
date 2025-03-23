@@ -15,5 +15,5 @@ use utoipa_swagger_ui::SwaggerUi;
 struct ApiDoc;
 
 pub fn setup_swagger() -> SwaggerUi {
-    SwaggerUi::new("/swagger").url("/api-docs/openapi.json", ApiDoc::openapi())
+    SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi())
 }

@@ -29,7 +29,7 @@ pub async fn handle_get_hello(State(handler): State<Arc<UserHandler>>) -> impl I
 
 #[utoipa::path(
     get,
-    path = "/users",
+    path = "/api/users",
     responses(
         (status = 201, description = "User created successfully"),
         (status = 400, description = "Bad request")

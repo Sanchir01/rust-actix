@@ -25,13 +25,12 @@ pub async fn run_http_server(handlers: Arc<Handlers>) {
     let user_handlers = handlers.users_handler.clone();
     let swagger = setup_swagger();
     let routers = Router::new()
-        .merge(swagger)
         .route("/hello/{id}", post(greet_name))
         .route("/users/hello", get(handle_get_hello))
         .route("/users", get(get_users))
         .with_state(user_handlers);
 
-    let app = Router::new().nest("/api", routers);
+    let app = Router::new().merge(swagger).nest("/api", routers);
 
     axum::serve(listener, app).await.unwrap();
     println!("🚀 Server running on http://localhost:5000");
