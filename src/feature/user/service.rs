@@ -1,7 +1,5 @@
 use std::sync::Arc;
 
-use tokio::sync::Mutex;
-
 use super::repository::UserRepository;
 use crate::feature::user::entity::User;
 
@@ -13,5 +11,8 @@ pub struct UserService {
 impl UserService {
     pub fn new_user_services(user_repo: Arc<UserRepository>) -> Self {
         Self { user_repo }
+    }
+    pub async fn get_users(&self) -> Result<Vec<User>, sqlx::Error> {
+        self.user_repo.get_all_users().await
     }
 }

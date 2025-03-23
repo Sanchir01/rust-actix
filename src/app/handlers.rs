@@ -1,8 +1,6 @@
-use std::sync::Arc;
-
-use crate::feature::user::handler::UserHandler;
-
 use super::services::Services;
+use crate::feature::user::handler::UserHandler;
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct Handlers {

@@ -3,41 +3,20 @@ use crate::app::db::init_primary_db;
 use crate::servers::http::server::run_http_server;
 use app::{handlers::Handlers, repositories::Repositories, services::Services};
 use dotenvy::dotenv;
-use serde::{Deserialize, Serialize};
+use feature::user::entity::User;
 use slog::{Drain, Logger, info, o};
 use slog_async::Async;
 use slog_scope::{GlobalLoggerGuard, logger, set_global_logger};
 use slog_term::{CompactFormat, TermDecorator};
-use sqlx::prelude::FromRow;
 use std::sync::{Arc, Mutex};
-use uuid::Uuid;
 mod app;
 mod feature;
 mod servers;
-
-#[derive(Serialize, Deserialize)]
-struct Item {
-    id: Uuid,
-    name: String,
-    description: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct RequestItem {
-    name: String,
-    description: String,
-}
+mod utils;
 #[cfg(not(target_os = "windows"))]
 use jemallocator::Jemalloc as GlobalAlloc;
 #[cfg(target_os = "windows")]
 use mimalloc::MiMalloc as GlobalAlloc;
-
-#[derive(Debug, Serialize, FromRow)]
-struct User {
-    id: Uuid,
-    name: String,
-    slug: String,
-}
 
 #[global_allocator]
 static GLOBAL: GlobalAlloc = GlobalAlloc;
@@ -59,9 +38,9 @@ async fn main() -> std::io::Result<()> {
     let repo = Arc::new(Repositories::new_repositories(pool));
     let services = Arc::new(Services::new_sevices(repo));
     let handlers = Arc::new(Handlers::new_handlers(services));
+
     run_http_server(handlers).await;
-    // let swagger = SwaggerUi::new("/swagger-ui/{_:.*}")
-    //     .url("/api-docs/openapi.json", ApiDoc::openapi());
+
     Ok(())
 }
 

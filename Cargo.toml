@@ -5,16 +5,21 @@ edition = "2024"
 
 [dependencies]
 tokio = { version = "1.44.0", features = ["full"] }
-serde ={version = "1.0.219",features = ["derive"]}
-sqlx ={ version = "0.8.3", features = ["postgres", "runtime-tokio-rustls", "derive","uuid"] }
+serde = { version = "1.0.219", features = ["derive"] }
+sqlx = { version = "0.8.3", features = [
+    "postgres",
+    "runtime-tokio-rustls",
+    "derive",
+    "uuid",
+] }
 dotenvy = "0.15.7"
 config = "0.15.9"
 axum = "0.8.1"
-utoipa = {version= "5.3.1", features=["axum_extras"]}
-utoipa-swagger-ui = { version = "9.0.0", features = ["axum"]}
+utoipa = { version = "5.3.1", features = ["axum_extras", "uuid"] }
+utoipa-swagger-ui = { version = "9.0.0", features = ["axum"] }
 slog = "2.7.0"
 slog-term = "2.9.1"
-tower-http = "0.6.2"
+tower-http = { version = "0.6.2", features = ["cors"] }
 toml = "0.8.20"
 simple_logger = "5.0.0"
 slog-async = "2.8.0"
@@ -22,11 +27,14 @@ slog-scope = "4.4.0"
 slog-stdlog = "4.1.1"
 log = "0.4.26"
 env_logger = "0.11.7"
-mimalloc = { version = "0.1.43"}
+mimalloc = { version = "0.1.43" }
 simd-json = "0.14.3"
 uuid = { version = "1.0", features = ["serde", "v4"] }
 tower = "0.5.2"
-ts-rs = "10.1.0"
+ts-rs = { version = "10.1.0", features = ["uuid-impl", "format"] }
+jsonwebtoken = "9.3.1"
+argon2 = "0.5.3"
+axum-extra = { version = "0.10.0", features = ["cookie"] }
 
 [target.'cfg(not(target_os = "windows"))'.dependencies]
 jemallocator = { version = "0.5.4" }

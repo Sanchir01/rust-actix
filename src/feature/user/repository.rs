@@ -12,7 +12,7 @@ impl UserRepository {
     }
     pub async fn get_all_users(&self) -> Result<Vec<User>, sqlx::Error> {
         let query = r#"
-            SELECT id, name, slug
+            SELECT id, title, slug
             FROM users
         "#;
         let users = sqlx::query_as(query)
