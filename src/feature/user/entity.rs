@@ -8,6 +8,6 @@ use uuid::Uuid;
 pub struct User {
     #[schema(value_type = String, format = Uuid)]
     id: Uuid,
-    name: String,
-    description: String,
+    title: String,
+    slug: String,
 }

@@ -1,5 +1,6 @@
 use crate::feature::user::entity::User;
 use sqlx::{Pool, Postgres};
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct UserRepository {
@@ -13,7 +14,7 @@ impl UserRepository {
     pub async fn get_all_users(&self) -> Result<Vec<User>, sqlx::Error> {
         let query = r#"
             SELECT id, title, slug
-            FROM users
+            FROM public.users
         "#;
         let users = sqlx::query_as(query)
             .fetch_all(&self.user_repo)
@@ -24,12 +25,12 @@ impl UserRepository {
             })?;
         Ok(users)
     }
-    pub async fn create_user(&self, title: &str, slug: &str) -> Result<String, sqlx::Error> {
+    pub async fn create_user(&self, title: &str, slug: &str) -> Result<Uuid, sqlx::Error> {
         let query = r#"
             INSERT  INTO users (title, slug)
             VALUES ($1, $2) RETURNING id
             "#;
-        let user: String = sqlx::query_scalar(query)
+        let user: Uuid = sqlx::query_scalar(query)
             .bind(title)
             .bind(slug)
             .fetch_one(&self.user_repo)
