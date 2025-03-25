@@ -1,17 +1,14 @@
+use axum::middleware::from_fn;
 use std::sync::Arc;
 use tokio::net::TcpListener;
+use tower_http::cors::{Any, CorsLayer};
 
 use crate::app::handlers::Handlers;
 use crate::feature::user::handler::{create_user_handler, get_users, handle_get_hello};
+use crate::servers::http::middleware::hello_mid;
 use crate::utils::swagger::setup_swagger;
-use axum::{
-    Router,
-    extract::Path,
-    response::IntoResponse,
-    routing::{get, post},
-    serve::ListenerExt,
-};
-
+use axum::{Router, routing::get, serve::ListenerExt};
+use tower::ServiceBuilder;
 pub async fn run_http_server(handlers: Arc<Handlers>) {
     let listener = TcpListener::bind("0.0.0.0:5000")
         .await
@@ -27,7 +24,9 @@ pub async fn run_http_server(handlers: Arc<Handlers>) {
     let routers = Router::new()
         .route("/users/hello", get(handle_get_hello))
         .route("/users", get(get_users).post(create_user_handler))
-        .with_state(user_handlers);
+        .with_state(user_handlers)
+        .layer(get_cort())
+        .layer(from_fn(hello_mid));
 
     let app = Router::new().nest("/api", routers);
 
@@ -35,3 +34,9 @@ pub async fn run_http_server(handlers: Arc<Handlers>) {
     println!("🚀 Server running on http://localhost:5000");
 }
 
+fn get_cort() -> CorsLayer {
+    CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods(Any)
+        .allow_headers(Any)
+}
