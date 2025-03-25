@@ -12,6 +12,7 @@ mod app;
 mod feature;
 mod servers;
 mod utils;
+
 #[cfg(not(target_os = "windows"))]
 use jemallocator::Jemalloc as GlobalAlloc;
 #[cfg(target_os = "windows")]
@@ -32,7 +33,6 @@ async fn main() -> std::io::Result<()> {
 
     let _guard = init_logger();
 
-    info!(logger(), "Приложение запущено");
     info!(logger(), "Starting server at http://localhost:5000");
     let repo = Arc::new(Repositories::new_repositories(pool));
     let services = Arc::new(Services::new_sevices(repo));

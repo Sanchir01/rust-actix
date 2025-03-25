@@ -3,7 +3,7 @@ use sqlx::prelude::FromRow;
 use ts_rs::TS;
 use utoipa::ToSchema;
 use uuid::Uuid;
-#[derive(Debug,Serialize, Deserialize, FromRow, ToSchema, TS)]
+#[derive(Debug, Serialize, Deserialize, FromRow, ToSchema, TS)]
 #[ts(export)]
 pub struct User {
     #[schema(value_type = String, format = Uuid)]
@@ -12,10 +12,10 @@ pub struct User {
     slug: String,
 }
 
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
-   pub id: Uuid,
-   pub title: String,
+    pub id: Uuid,
+    pub title: String,
     pub slug: String,
+    pub exp: usize,
 }

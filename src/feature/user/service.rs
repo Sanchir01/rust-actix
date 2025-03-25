@@ -1,10 +1,11 @@
 use std::sync::Arc;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use uuid::Uuid;
 
+use super::jwt::create_jwt;
 use super::repository::UserRepository;
 use crate::feature::user::entity::User;
-use super::jwt::create_jwt;
 
 #[derive(Clone)]
 pub struct UserService {
@@ -18,9 +19,14 @@ impl UserService {
     pub async fn get_users(&self) -> Result<Vec<User>, sqlx::Error> {
         self.user_repo.get_all_users().await
     }
-    pub async fn create_user(&self, title: &str, slug: &str) -> Result<Uuid, Box<dyn std::error::Error>> {
+    pub async fn create_user(
+        &self,
+        title: &str,
+        slug: &str,
+    ) -> Result<Uuid, Box<dyn std::error::Error>> {
         let user_id = self.user_repo.create_user(title, slug).await?;
-        let jwt = create_jwt(user_id, title.to_string(), slug.to_string())?;
+        let expiration = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + 3600;
+        let jwt = create_jwt(user_id, title.to_string(), slug.to_string(), expiration)?;
         println!("Generated JWT token: {}", jwt);
         Ok(user_id)
     }
