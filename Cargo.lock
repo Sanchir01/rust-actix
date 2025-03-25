@@ -2152,6 +2152,7 @@ name = "rust-axum"
 version = "0.0.1"
 dependencies = [
  "argon2",
+ "async-trait",
  "axum 0.8.1",
  "axum-extra",
  "config",

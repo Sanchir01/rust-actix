@@ -25,7 +25,6 @@ pub async fn run_http_server(handlers: Arc<Handlers>) {
     let user_handlers = handlers.users_handler.clone();
     let _swagger = setup_swagger();
     let routers = Router::new()
-        .route("/hello/{id}", post(greet_name))
         .route("/users/hello", get(handle_get_hello))
         .route("/users", get(get_users).post(create_user_handler))
         .with_state(user_handlers);
@@ -35,16 +34,4 @@ pub async fn run_http_server(handlers: Arc<Handlers>) {
     axum::serve(listener, app).await.unwrap();
     println!("🚀 Server running on http://localhost:5000");
 }
-#[utoipa::path(
-    post,
-    path = "/users/{id}",
-    responses(
-        (status = 200, description = "Success response"),
-        (status = 400, description = "Bad request")
-    ),
-    params(
-        ("id" = u32, Path, description = "User ID")
-    ),
-    tag = "users"
-)]
-pub async fn greet_name(Path(id): Path<u32>) -> impl IntoResponse {}
+
