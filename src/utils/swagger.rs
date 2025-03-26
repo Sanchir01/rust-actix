@@ -1,7 +1,4 @@
-use crate::feature::user::{
-    entity::User,
-    handler::{ UserResponse},
-};
+use crate::feature::user::{entity::User, handler::UserResponse};
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 

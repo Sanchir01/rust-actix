@@ -1,11 +1,19 @@
 use super::service::UserService;
-use axum::{extract::State, http::{header, HeaderValue, StatusCode}, response::IntoResponse, routing::head, Json};
+use crate::feature::user::entity::CreateUserRequest;
+use axum::{
+    Json,
+    extract::State,
+    http::{HeaderValue, StatusCode, header},
+    response::{IntoResponse, Response},
+    routing::head,
+};
 use serde::Deserialize;
-use std::{sync::Arc, time::{SystemTime, UNIX_EPOCH}};
+use std::{
+    sync::Arc,
+    time::{SystemTime, UNIX_EPOCH},
+};
 use utoipa::ToSchema;
 use validator::Validate;
-use crate::feature::user::entity::CreateUserRequest;
-
 
 #[derive(Deserialize, ToSchema)]
 pub struct UserResponse {
@@ -47,33 +55,37 @@ pub async fn handle_get_hello(State(handler): State<Arc<UserHandler>>) -> impl I
 pub async fn create_user_handler(
     State(handler): State<Arc<UserHandler>>,
     Json(payload): Json<CreateUserRequest>,
-) -> impl IntoResponse {
+) -> Response {
     if let Err(validation_errors) = payload.validate() {
         return (
             StatusCode::BAD_REQUEST,
             Json(serde_json::json!({ "errors": validation_errors.to_string() })),
-        );
+        )
+            .into_response();
     }
-    
 
     match handler
         .user_service
         .create_user(&payload.title, &payload.slug)
         .await
     {
-
-        Ok((user_id,cookies)) => {
+        Ok((user_id, cookies)) => {
             let mut headers = axum::http::HeaderMap::new();
-            headers.insert(header::SET_COOKIE, HeaderValue::from_str(cookies).unwrap());
-            (
-       
-            StatusCode::CREATED,
-            Json(serde_json::json!({ "id": user_id }))
-        )},
+            headers.insert(
+                header::SET_COOKIE,
+                HeaderValue::from_str(&cookies.encoded().to_string()).unwrap(),
+            );
+
+            let mut response = Json(serde_json::json!({ "id": user_id })).into_response();
+            *response.headers_mut() = headers;
+            response.status_mut().clone_from(&StatusCode::CREATED);
+            response
+        }
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(serde_json::json!({ "error": e.to_string() })),
-        ),
+        )
+            .into_response(),
     }
 }
 

@@ -3,7 +3,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use axum::http::header;
 use axum::response::AppendHeaders;
-use tower_cookies::{cookie, Cookie};
+use tower_cookies::{Cookie, cookie};
 use uuid::Uuid;
 
 use super::jwt::create_jwt;
@@ -27,12 +27,12 @@ impl UserService {
         &self,
         title: &str,
         slug: &str,
-    ) -> Result<(Uuid,Cookie<'static>), Box<dyn std::error::Error>> {
+    ) -> Result<(Uuid, Cookie<'static>), Box<dyn std::error::Error>> {
         let user_id = self.user_repo.create_user(title, slug).await?;
         let expiration = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + 3600;
         let jwt = create_jwt(user_id, title.to_string(), slug.to_string(), expiration)?;
         println!("Generated JWT token: {}", jwt);
         let cookies = create_cookie(&jwt, "refresh");
-        Ok((user_id,cookies))
+        Ok((user_id, cookies))
     }
 }
