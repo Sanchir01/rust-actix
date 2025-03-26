@@ -1,17 +1,26 @@
 use crate::feature::user::entity::User;
+#[cfg(test)]
+use mockall::{automock, predicate::*};
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
+#[cfg_attr(test, automock)]
+pub trait UserRepositoryTrait {
+    async fn get_all_users(&self) -> Result<Vec<User>, sqlx::Error>;
+    async fn create_user(&self, title: &str, slug: &str) -> Result<Uuid, sqlx::Error>;
+}
 #[derive(Clone)]
 pub struct UserRepository {
     user_repo: Pool<Postgres>,
 }
-
 impl UserRepository {
     pub fn new_user_repository(user_repo: Pool<Postgres>) -> Self {
         Self { user_repo }
     }
-    pub async fn get_all_users(&self) -> Result<Vec<User>, sqlx::Error> {
+}
+
+impl UserRepositoryTrait for UserRepository {
+    async fn get_all_users(&self) -> Result<Vec<User>, sqlx::Error> {
         let query = r#"
             SELECT id, title, slug
             FROM public.users
@@ -25,7 +34,7 @@ impl UserRepository {
             })?;
         Ok(users)
     }
-    pub async fn create_user(&self, title: &str, slug: &str) -> Result<Uuid, sqlx::Error> {
+    async fn create_user(&self, title: &str, slug: &str) -> Result<Uuid, sqlx::Error> {
         let query = r#"
             INSERT  INTO users (title, slug)
             VALUES ($1, $2) RETURNING id

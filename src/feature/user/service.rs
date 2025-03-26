@@ -1,28 +1,28 @@
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use axum::http::header;
-use axum::response::AppendHeaders;
-use tower_cookies::{Cookie, cookie};
+use tower_cookies::Cookie;
 use uuid::Uuid;
 
 use super::jwt::create_jwt;
-use super::repository::UserRepository;
+use super::repository::UserRepositoryTrait;
 use crate::feature::user::entity::User;
 use crate::feature::user::jwt::create_cookie;
 
 #[derive(Clone)]
-pub struct UserService {
-    user_repo: Arc<UserRepository>,
+pub struct UserService<T: UserRepositoryTrait + Send + Sync + 'static> {
+    user_repo: Arc<T>,
 }
 
-impl UserService {
-    pub fn new_user_services(user_repo: Arc<UserRepository>) -> Self {
+impl<T: UserRepositoryTrait + Send + Sync + 'static> UserService<T> {
+    pub fn new_user_services(user_repo: Arc<T>) -> Self {
         Self { user_repo }
     }
+
     pub async fn get_users(&self) -> Result<Vec<User>, sqlx::Error> {
         self.user_repo.get_all_users().await
     }
+
     pub async fn create_user(
         &self,
         title: &str,

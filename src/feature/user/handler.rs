@@ -1,4 +1,4 @@
-use super::service::UserService;
+use super::{repository::UserRepository, service::UserService};
 use crate::feature::user::entity::CreateUserRequest;
 use axum::{
     Json,
@@ -9,6 +9,7 @@ use axum::{
 };
 use serde::Deserialize;
 use std::{
+    any::Any,
     sync::Arc,
     time::{SystemTime, UNIX_EPOCH},
 };
@@ -21,11 +22,11 @@ pub struct UserResponse {
 }
 #[derive(Clone)]
 pub struct UserHandler {
-    user_service: Arc<UserService>,
+    user_service: Arc<UserService<UserRepository>>,
 }
 
 impl UserHandler {
-    pub fn new(user_service: Arc<UserService>) -> Self {
+    pub fn new(user_service: Arc<UserService<UserRepository>>) -> Self {
         Self { user_service }
     }
 }

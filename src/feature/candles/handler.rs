@@ -43,3 +43,12 @@ pub async fn get_all_candles(
 ) -> impl IntoResponse {
     "sdad"
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use tower::ServiceExt;
+
+    #[tokio::test]
+    async fn test_get_all_candles() {}
+}
