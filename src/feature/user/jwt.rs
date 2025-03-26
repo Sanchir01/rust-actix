@@ -2,7 +2,6 @@ use super::entity::Claims;
 use jsonwebtoken::{EncodingKey, Header, encode};
 use std::env;
 use std::error::Error;
-use std::time::{SystemTime, UNIX_EPOCH};
 use time::Duration;
 use tower_cookies::{Cookie, cookie::SameSite};
 use uuid::Uuid;

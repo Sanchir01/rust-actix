@@ -3,6 +3,8 @@ use sqlx::prelude::FromRow;
 use ts_rs::TS;
 use utoipa::ToSchema;
 use uuid::Uuid;
+use validator_derive::Validate;
+
 #[derive(Debug, Serialize, Deserialize, FromRow, ToSchema, TS)]
 #[ts(export)]
 pub struct User {
@@ -18,4 +20,12 @@ pub struct Claims {
     pub title: String,
     pub slug: String,
     pub exp: usize,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct CreateUserRequest {
+    #[validate(length(min = 1))]
+    pub title: String,
+    #[validate(length(min = 1))]
+    pub slug: String,
 }

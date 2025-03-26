@@ -15,6 +15,7 @@ mod utils;
 
 #[cfg(not(target_os = "windows"))]
 use jemallocator::Jemalloc as GlobalAlloc;
+
 #[cfg(target_os = "windows")]
 use mimalloc::MiMalloc as GlobalAlloc;
 

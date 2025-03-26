@@ -5,7 +5,7 @@ use tower_http::cors::{Any, CorsLayer};
 
 use crate::app::handlers::Handlers;
 use crate::feature::user::handler::{create_user_handler, get_users, handle_get_hello};
-use crate::servers::http::middleware::hello_mid;
+use crate::servers::http::middleware::{auth_middleware};
 use crate::utils::swagger::setup_swagger;
 use axum::{Router, routing::get, serve::ListenerExt};
 use tower::ServiceBuilder;
@@ -26,7 +26,7 @@ pub async fn run_http_server(handlers: Arc<Handlers>) {
         .route("/users", get(get_users).post(create_user_handler))
         .with_state(user_handlers)
         .layer(get_cort())
-        .layer(from_fn(hello_mid));
+        .layer(from_fn(auth_middleware));
 
     let app = Router::new().nest("/api", routers);
 

@@ -1,14 +1,11 @@
 use super::service::UserService;
-use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
+use axum::{extract::State, http::{header, HeaderValue, StatusCode}, response::IntoResponse, routing::head, Json};
 use serde::Deserialize;
-use std::sync::Arc;
+use std::{sync::Arc, time::{SystemTime, UNIX_EPOCH}};
 use utoipa::ToSchema;
+use validator::Validate;
+use crate::feature::user::entity::CreateUserRequest;
 
-#[derive(Deserialize, ToSchema)]
-pub struct CreateUserRequest {
-    title: String,
-    slug: String,
-}
 
 #[derive(Deserialize, ToSchema)]
 pub struct UserResponse {
@@ -37,6 +34,7 @@ impl UserHandler {
 pub async fn handle_get_hello(State(handler): State<Arc<UserHandler>>) -> impl IntoResponse {
     "Hello, world!"
 }
+
 #[utoipa::path(
     post,
     path = "/api/users",
@@ -50,15 +48,28 @@ pub async fn create_user_handler(
     State(handler): State<Arc<UserHandler>>,
     Json(payload): Json<CreateUserRequest>,
 ) -> impl IntoResponse {
+    if let Err(validation_errors) = payload.validate() {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({ "errors": validation_errors.to_string() })),
+        );
+    }
+    
+
     match handler
         .user_service
         .create_user(&payload.title, &payload.slug)
         .await
     {
-        Ok(user_id) => (
+
+        Ok((user_id,cookies)) => {
+            let mut headers = axum::http::HeaderMap::new();
+            headers.insert(header::SET_COOKIE, HeaderValue::from_str(cookies).unwrap());
+            (
+       
             StatusCode::CREATED,
-            Json(serde_json::json!({ "id": user_id })),
-        ),
+            Json(serde_json::json!({ "id": user_id }))
+        )},
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(serde_json::json!({ "error": e.to_string() })),

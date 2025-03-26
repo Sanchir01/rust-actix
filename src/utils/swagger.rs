@@ -1,6 +1,6 @@
 use crate::feature::user::{
     entity::User,
-    handler::{CreateUserRequest, UserResponse},
+    handler::{ UserResponse},
 };
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
@@ -9,7 +9,7 @@ use utoipa_swagger_ui::SwaggerUi;
 #[openapi(
     paths(crate::feature::user::handler::get_users),
     components(
-        schemas(User, CreateUserRequest,UserResponse)
+        schemas(User,UserResponse)
     ),
     tags(
         (name = "users", description = "User management API")
