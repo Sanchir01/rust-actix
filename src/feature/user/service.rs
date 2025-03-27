@@ -1,29 +1,40 @@
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use super::jwt::create_jwt;
+use super::repository::{UserRepository, UserRepositoryTrait};
+use crate::feature::user::entity::User;
+use crate::feature::user::jwt::create_cookie;
+use mockall::{automock, predicate::*};
 use tower_cookies::Cookie;
 use uuid::Uuid;
 
-use super::jwt::create_jwt;
-use super::repository::UserRepositoryTrait;
-use crate::feature::user::entity::User;
-use crate::feature::user::jwt::create_cookie;
-
-#[derive(Clone)]
-pub struct UserService<T: UserRepositoryTrait + Send + Sync + 'static> {
-    user_repo: Arc<T>,
+#[cfg_attr(test, automock)]
+pub trait UserServiceTrait {
+    async fn get_users(&self) -> Result<Vec<User>, sqlx::Error>;
+    async fn create_user(
+        &self,
+        title: &str,
+        slug: &str,
+    ) -> Result<(Uuid, Cookie<'static>, Cookie<'static>), Box<dyn std::error::Error>>;
 }
 
-impl<T: UserRepositoryTrait + Send + Sync + 'static> UserService<T> {
-    pub fn new_user_services(user_repo: Arc<T>) -> Self {
+#[derive(Clone)]
+pub struct UserService {
+    user_repo: Arc<UserRepository>,
+}
+
+impl UserService {
+    pub fn new_user_services(user_repo: Arc<UserRepository>) -> Self {
         Self { user_repo }
     }
-
-    pub async fn get_users(&self) -> Result<Vec<User>, sqlx::Error> {
+}
+impl UserServiceTrait for UserService {
+    async fn get_users(&self) -> Result<Vec<User>, sqlx::Error> {
         self.user_repo.get_all_users().await
     }
 
-    pub async fn create_user(
+    async fn create_user(
         &self,
         title: &str,
         slug: &str,

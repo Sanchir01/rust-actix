@@ -1,4 +1,7 @@
-use super::{repository::UserRepository, service::UserService};
+use super::{
+    repository::UserRepository,
+    service::{UserService, UserServiceTrait},
+};
 use crate::feature::user::entity::CreateUserRequest;
 use axum::{
     Json,
@@ -20,11 +23,11 @@ pub struct UserResponse {
 }
 #[derive(Clone)]
 pub struct UserHandler {
-    user_service: Arc<UserService<UserRepository>>,
+    user_service: Arc<UserService>, // Убираем generic параметр
 }
 
 impl UserHandler {
-    pub fn new(user_service: Arc<UserService<UserRepository>>) -> Self {
+    pub fn new(user_service: Arc<UserService>) -> Self {
         Self { user_service }
     }
 }
@@ -38,7 +41,9 @@ impl UserHandler {
     ),
     tag = "users"
 )]
-pub async fn handle_get_hello(State(handler): State<Arc<UserHandler>>) -> impl IntoResponse {
+pub async fn handle_get_hello<T: UserServiceTrait>(
+    State(handler): State<Arc<UserHandler>>,
+) -> impl IntoResponse {
     "Hello, world!"
 }
 

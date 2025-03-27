@@ -1,15 +1,12 @@
 use std::sync::Arc;
 
-use crate::feature::{
-    candles::service::CandlesService,
-    user::{repository::UserRepository, service::UserService},
-};
+use crate::feature::{candles::service::CandlesService, user::service::UserService};
 
 use super::repositories::Repositories;
 
 #[derive(Clone)]
 pub struct Services {
-    pub users_service: Arc<UserService<UserRepository>>,
+    pub users_service: Arc<UserService>,
     pub candles_service: Arc<CandlesService>,
 }
 

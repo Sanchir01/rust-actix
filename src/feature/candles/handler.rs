@@ -3,9 +3,7 @@ use serde::Deserialize;
 use std::sync::Arc;
 use utoipa::ToSchema;
 
-use crate::feature::user::handler::UserHandler;
-
-use super::service::CandlesService;
+use super::service::{CandlesService, CandlesServiceTrait};
 
 #[derive(Deserialize, ToSchema)]
 pub struct CreateUserRequest {
@@ -19,12 +17,12 @@ pub struct UserResponse {
 }
 #[derive(Clone)]
 pub struct CandlesHandler {
-    user_service: Arc<CandlesService>,
+    candles_service: Arc<CandlesService>,
 }
 
 impl CandlesHandler {
-    pub fn new(user_service: Arc<CandlesService>) -> Self {
-        Self { user_service }
+    pub fn new(candles_service: Arc<CandlesService>) -> Self {
+        Self { candles_service }
     }
 }
 
@@ -37,11 +35,14 @@ impl CandlesHandler {
     ),
     tag = "candles"
 )]
-pub async fn get_all_candles(
-    State(handler): State<Arc<CandlesHandler>>,
-    Json(payload): Json<CreateUserRequest>,
-) -> impl IntoResponse {
-    "sdad"
+pub async fn get_all_candles(State(handler): State<Arc<CandlesHandler>>) -> impl IntoResponse {
+    match handler.candles_service.get_all_candles().await {
+        Ok(candles) => (StatusCode::OK, Json(candles)),
+        Err(e) => {
+            eprintln!("Error getting users: {:?}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(vec![]))
+        }
+    }
 }
 
 #[cfg(test)]

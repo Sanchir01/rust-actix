@@ -1,10 +1,12 @@
-use axum::middleware::from_fn;
+use axum::middleware::{self};
 use std::sync::Arc;
 use tokio::net::TcpListener;
+use tower::ServiceBuilder;
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::app::handlers::Handlers;
-use crate::feature::user::handler::{create_user_handler, get_users, handle_get_hello};
+use crate::feature::candles::handler::get_all_candles;
+use crate::feature::user::handler::{create_user_handler, get_users};
 use crate::servers::http::middleware::auth_middleware;
 use crate::utils::swagger::setup_swagger;
 use axum::{
@@ -23,20 +25,28 @@ pub async fn run_http_server(handlers: Arc<Handlers>) {
             }
         });
 
-    let user_handlers = handlers.users_handler.clone();
     let _swagger = setup_swagger();
 
-    let public_routes = Router::new().route("/login", post(create_user_handler));
+    let middleware_builder = ServiceBuilder::new().layer(middleware::from_fn(auth_middleware));
+
+    let auth_routes = Router::new()
+        .route("/login", post(create_user_handler))
+        .with_state(handlers.users_handler.clone());
+
+    let candles_routes = Router::new()
+        .route("/candles", get(get_all_candles))
+        .with_state(handlers.candles_handler.clone());
 
     let protected_routes = Router::new()
         .route("/users", get(get_users))
-        .layer(from_fn(auth_middleware));
+        .layer(middleware_builder)
+        .with_state(handlers.users_handler.clone());
 
+    let public_routes = Router::new().merge(candles_routes).merge(auth_routes);
     let app = Router::new()
         .nest("/api", public_routes)
-        .nest("/api", protected_routes)
-        .layer(get_cors())
-        .with_state(user_handlers);
+        .nest("/api/private", protected_routes)
+        .layer(get_cors());
 
     println!("🚀 Server running on http://localhost:5000");
 

@@ -1,5 +1,12 @@
 use super::services::Services;
-use crate::feature::{candles::handler::CandlesHandler, user::handler::UserHandler};
+use crate::feature::{
+    candles::handler::CandlesHandler,
+    user::{
+        handler::UserHandler,
+        repository::UserRepositoryTrait,
+        service::{UserService, UserServiceTrait},
+    },
+};
 use std::sync::Arc;
 
 #[derive(Clone)]

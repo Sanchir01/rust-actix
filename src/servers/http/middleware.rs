@@ -12,7 +12,7 @@ fn extract_token(auth_header: &str) -> Result<&str, &'static str> {
         .map(|token| token.trim())
 }
 
-pub async fn auth_middleware(request: Request, next: Next) -> Response {
+pub async fn auth_middleware(mut request: Request, next: Next) -> Response {
     let headers: &HeaderMap = request.headers();
 
     let auth_header = match headers.get("Authorization") {
@@ -45,7 +45,6 @@ pub async fn auth_middleware(request: Request, next: Next) -> Response {
         }
     };
 
-    println!("token auth {}", token);
     let data = match parse_token(token) {
         Ok(data) => data,
         Err(_) => {
@@ -56,7 +55,7 @@ pub async fn auth_middleware(request: Request, next: Next) -> Response {
                 .into_response();
         }
     };
-    println!("decode token {:?}", data);
+    request.extensions_mut().insert(data);
     let response = next.run(request).await;
     response
 }
