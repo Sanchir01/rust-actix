@@ -27,12 +27,12 @@ impl<T: UserRepositoryTrait + Send + Sync + 'static> UserService<T> {
         &self,
         title: &str,
         slug: &str,
-    ) -> Result<(Uuid, Cookie<'static>), Box<dyn std::error::Error>> {
+    ) -> Result<(Uuid, Cookie<'static>, Cookie<'static>), Box<dyn std::error::Error>> {
         let user_id = self.user_repo.create_user(title, slug).await?;
         let expiration = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + 3600;
         let jwt = create_jwt(user_id, title.to_string(), slug.to_string(), expiration)?;
-        println!("Generated JWT token: {}", jwt);
-        let cookies = create_cookie(&jwt, "refresh");
-        Ok((user_id, cookies))
+        let refresh_token = create_cookie(&jwt, "refreshToken");
+        let access_token = create_cookie(&jwt, "accessToken");
+        Ok((user_id, refresh_token, access_token))
     }
 }

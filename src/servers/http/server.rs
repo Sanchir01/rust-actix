@@ -37,7 +37,9 @@ pub async fn run_http_server(handlers: Arc<Handlers>) {
         .nest("/api", protected_routes)
         .layer(get_cors())
         .with_state(user_handlers);
+
     println!("🚀 Server running on http://localhost:5000");
+
     axum::serve(listener, app).await.unwrap();
 }
 

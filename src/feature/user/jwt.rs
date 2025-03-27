@@ -1,5 +1,7 @@
 use super::entity::Claims;
-use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
+use jsonwebtoken::{
+    DecodingKey, EncodingKey, Header, Validation, decode, encode, errors::Error as JWTError,
+};
 use std::env;
 use std::error::Error;
 use time::Duration;
@@ -29,17 +31,6 @@ pub fn create_jwt(
     Ok(token)
 }
 
-pub fn parse_token(token: &str) -> Result<Claims, jsonwebtoken::errors::Error> {
-    let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
-    let validation = Validation::default();
-    let token_data = decode::<Claims>(
-        token,
-        &DecodingKey::from_secret(secret.as_bytes()),
-        &validation,
-    )?;
-    Ok(token_data.claims)
-}
-
 pub fn create_cookie(token: &str, name: &str) -> Cookie<'static> {
     let mut cookie = Cookie::new(name.to_string(), token.to_string());
     cookie.set_path("/");
@@ -49,4 +40,15 @@ pub fn create_cookie(token: &str, name: &str) -> Cookie<'static> {
     cookie.set_max_age(Duration::seconds(3600));
 
     cookie
+}
+
+pub fn parse_token(token: &str) -> Result<Claims, JWTError> {
+    let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+    let validation = Validation::default();
+    let token_data = decode::<Claims>(
+        token,
+        &DecodingKey::from_secret(secret.as_bytes()),
+        &validation,
+    )?;
+    Ok(token_data.claims)
 }

@@ -1,16 +1,14 @@
 use std::sync::Arc;
 
-use uuid::Uuid;
-
-use super::repository::CandlesRepository;
+use super::repository::CandlesRepositoryTrait;
 
 #[derive(Clone)]
-pub struct CandlesService {
-    candles_service: Arc<CandlesRepository>,
+pub struct CandlesService<T: CandlesRepositoryTrait + Send + Sync + 'static> {
+    candles_service: Arc<T>,
 }
 
-impl CandlesService {
-    pub fn new_candles_services(candles_service: Arc<CandlesRepository>) -> Self {
+impl<T: CandlesRepositoryTrait + Send + Sync + 'static> CandlesService<T> {
+    pub fn new_candles_services(candles_service: Arc<T>) -> Self {
         Self { candles_service }
     }
 }

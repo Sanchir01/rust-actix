@@ -5,11 +5,9 @@ use axum::{
     extract::State,
     http::{HeaderValue, StatusCode, header},
     response::{IntoResponse, Response},
-    routing::head,
 };
 use serde::Deserialize;
 use std::{
-    any::Any,
     sync::Arc,
     time::{SystemTime, UNIX_EPOCH},
 };
@@ -70,13 +68,16 @@ pub async fn create_user_handler(
         .create_user(&payload.title, &payload.slug)
         .await
     {
-        Ok((user_id, cookies)) => {
+        Ok((user_id, refresh_token, access_token)) => {
             let mut headers = axum::http::HeaderMap::new();
             headers.insert(
                 header::SET_COOKIE,
-                HeaderValue::from_str(&cookies.encoded().to_string()).unwrap(),
+                HeaderValue::from_str(&refresh_token.encoded().to_string()).unwrap(),
             );
-
+            headers.append(
+                header::SET_COOKIE,
+                HeaderValue::from_str(&access_token.encoded().to_string()).unwrap(),
+            );
             let mut response = Json(serde_json::json!({ "id": user_id })).into_response();
             *response.headers_mut() = headers;
             response.status_mut().clone_from(&StatusCode::CREATED);
