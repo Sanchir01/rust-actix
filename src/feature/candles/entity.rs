@@ -8,10 +8,10 @@ use uuid::Uuid;
 #[ts(export)]
 pub struct CandlesStruct {
     #[schema(value_type = String, format = Uuid)]
-    id: Uuid,
-    title: String,
-    slug: String,
-    version: i64,
-    price: i64,
-    color_id: Uuid,
+    pub id: Uuid,
+    pub title: String,
+    pub slug: String,
+    pub version: i64,
+    pub price: i64,
+    pub color_id: Uuid,
 }

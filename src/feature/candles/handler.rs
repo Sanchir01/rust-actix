@@ -28,7 +28,7 @@ impl CandlesHandler {
 
 #[utoipa::path(
     get,
-    path = "/candles",
+    path = "/api/candles",
     responses(
         (status = 201, description = "User created successfully"),
         (status = 400, description = "Bad request")
@@ -45,11 +45,17 @@ pub async fn get_all_candles(State(handler): State<Arc<CandlesHandler>>) -> impl
     }
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
-    use tower::ServiceExt;
-
-    #[tokio::test]
-    async fn test_get_all_candles() {}
+#[utoipa::path(
+    post,
+    path = "/api/candles",
+    responses(
+        (status = 201, description = "User created successfully"),
+        (status = 400, description = "Bad request")
+    ),
+    tag = "candles"
+)]
+pub async fn create_candle_handler(
+    State(handler): State<Arc<CandlesHandler>>,
+) -> impl IntoResponse {
+    "create candle "
 }
