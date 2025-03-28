@@ -34,7 +34,6 @@ async fn main() -> std::io::Result<()> {
 
     let _guard = init_logger();
 
-    info!(logger(), "Starting server at http://localhost:5000");
     let repo = Arc::new(Repositories::new_repositories(pool));
     let services = Arc::new(Services::new_sevices(repo));
     let handlers = Arc::new(Handlers::new_handlers(services));

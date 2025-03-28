@@ -1,7 +1,4 @@
-use super::{
-    repository::UserRepository,
-    service::{UserService, UserServiceTrait},
-};
+use super::service::{UserService, UserServiceTrait};
 use crate::feature::user::entity::CreateUserRequest;
 use axum::{
     Json,
@@ -10,10 +7,7 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use serde::Deserialize;
-use std::{
-    sync::Arc,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use std::sync::Arc;
 use utoipa::ToSchema;
 use validator::Validate;
 
@@ -30,21 +24,6 @@ impl UserHandler {
     pub fn new(user_service: Arc<UserService>) -> Self {
         Self { user_service }
     }
-}
-
-#[utoipa::path(
-    get,
-    path = "/users/hello",
-    responses(
-        (status = 200, description = "Success response"),
-        (status = 500, description = "Internal server error")
-    ),
-    tag = "users"
-)]
-pub async fn handle_get_hello<T: UserServiceTrait>(
-    State(handler): State<Arc<UserHandler>>,
-) -> impl IntoResponse {
-    "Hello, world!"
 }
 
 #[utoipa::path(

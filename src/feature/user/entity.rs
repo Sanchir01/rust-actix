@@ -22,7 +22,8 @@ pub struct Claims {
     pub exp: usize,
 }
 
-#[derive(Deserialize, Validate)]
+#[derive(Deserialize, Validate, Debug, TS)]
+#[ts(export)]
 pub struct CreateUserRequest {
     #[validate(length(min = 1))]
     pub title: String,

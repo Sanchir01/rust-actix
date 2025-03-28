@@ -8,7 +8,7 @@ use super::{
 };
 pub trait CandlesServiceTrait {
     async fn get_all_candles(&self) -> Result<Vec<CandlesStruct>, sqlx::Error>;
-    async fn create_user(
+    async fn create_candle(
         &self,
         title: &str,
         slug: &str,
@@ -31,7 +31,7 @@ impl CandlesServiceTrait for CandlesService {
     async fn get_all_candles(&self) -> Result<Vec<CandlesStruct>, sqlx::Error> {
         self.candles_service.get_all_candles().await
     }
-    async fn create_user(
+    async fn create_candle(
         &self,
         title: &str,
         slug: &str,
