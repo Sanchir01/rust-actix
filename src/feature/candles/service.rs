@@ -11,7 +11,8 @@ pub trait CandlesServiceTrait {
     async fn create_candle(
         &self,
         title: &str,
-        slug: &str,
+        price: i64,
+        version: i64,
         color_id: Uuid,
     ) -> Result<Uuid, Box<dyn std::error::Error>>;
 }
@@ -34,12 +35,13 @@ impl CandlesServiceTrait for CandlesService {
     async fn create_candle(
         &self,
         title: &str,
-        slug: &str,
+        price: i64,
+        version: i64,
         color_id: Uuid,
     ) -> Result<Uuid, Box<dyn std::error::Error>> {
         let user_id = self
             .candles_service
-            .create_candle(title, slug, color_id)
+            .create_candle(title, price, version, color_id)
             .await?;
 
         Ok(user_id)

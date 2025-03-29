@@ -1,19 +1,19 @@
 [database]
-username="postgres"
-password="postgres"
-host="localhost"
-port=5433
-database="rust-axum"
-retry=3
+username = "postgres"
+password = "postgres"
+host = "localhost"
+port = 5433
+database = "rust-axum"
+retry = 3
 
 [logger]
-level="debug"
-pretty=true
-file_path=""
+level = "debug"
+pretty = true
+file_path = ""
 
 [redis]
 
 
-[http]
-port=5000
-host="0.0.0.0"
+[http_server]
+port = 5000
+host = "0.0.0.0"

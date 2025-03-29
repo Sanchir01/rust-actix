@@ -1,19 +1,19 @@
 [database]
-username="postgres"
-password="vrTboWaFAYwGsanAdxCwWIEkXMo1DGlCWLM6ZP18t2wFCb2AIccp31fjqAUOpSlv"
-host="82.97.253.80"
-port=5436
-database="postgres"
-retry=3
+username = "postgres"
+password = "vrTboWaFAYwGsanAdxCwWIEkXMo1DGlCWLM6ZP18t2wFCb2AIccp31fjqAUOpSlv"
+host = "82.97.253.80"
+port = 5436
+database = "postgres"
+retry = 3
 
 [logger]
-level="debug"
-pretty=true
-file_path=""
+level = "debug"
+pretty = true
+file_path = ""
 
 [redis]
 
 
-[http]
-port=8080
-host="0.0.0.0"
+[http_server]
+port = 8080
+host = "0.0.0.0"

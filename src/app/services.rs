@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
-use crate::feature::{candles::service::CandlesService, user::service::UserService};
+use crate::feature::{
+    candles::service::CandlesService, colors::service::ColorService, user::service::UserService,
+};
 
 use super::repositories::Repositories;
 
@@ -8,6 +10,7 @@ use super::repositories::Repositories;
 pub struct Services {
     pub users_service: Arc<UserService>,
     pub candles_service: Arc<CandlesService>,
+    pub color_service: Arc<ColorService>,
 }
 
 impl Services {
@@ -18,6 +21,9 @@ impl Services {
             )),
             candles_service: Arc::new(CandlesService::new_candles_services(
                 repositories.candles_repository.clone(),
+            )),
+            color_service: Arc::new(ColorService::new_color_services(
+                repositories.color_repository.clone(),
             )),
         }
     }

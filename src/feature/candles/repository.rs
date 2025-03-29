@@ -9,7 +9,8 @@ pub trait CandlesRepositoryTrait {
     async fn create_candle(
         &self,
         title: &str,
-        slug: &str,
+        price: i64,
+        version: i64,
         color_id: Uuid,
     ) -> Result<Uuid, sqlx::Error>;
 }
@@ -44,15 +45,17 @@ impl CandlesRepositoryTrait for CandlesRepository {
     async fn create_candle(
         &self,
         title: &str,
-        slug: &str,
+        price: i64,
+        version: i64,
         color_id: Uuid,
     ) -> Result<Uuid, sqlx::Error> {
         let query = r#"
-            INSERT INTO candles (title, slug, color_id) VALUES ($1,$2, $3) RETURNING id
+            INSERT INTO candles (title, version, color_id) VALUES ($1,$2, $3, $4) RETURNING id
         "#;
         let candle_id: Uuid = sqlx::query_scalar(query)
             .bind(title)
-            .bind(slug)
+            .bind(price)
+            .bind(version)
             .bind(color_id)
             .fetch_one(&self.candles_repo)
             .await

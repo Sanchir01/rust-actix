@@ -3,22 +3,10 @@ use super::{
     service::{CandlesService, CandlesServiceTrait},
 };
 use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
-use serde::Deserialize;
 use std::sync::Arc;
-use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
 
-#[derive(Deserialize, ToSchema)]
-pub struct CreateUserRequest {
-    title: String,
-    slug: String,
-}
-
-#[derive(Deserialize, ToSchema)]
-pub struct UserResponse {
-    id: String,
-}
 #[derive(Clone)]
 pub struct CandlesHandler {
     candles_service: Arc<CandlesService>,
@@ -70,7 +58,12 @@ pub async fn create_candle_handler(
     }
     match handler
         .candles_service
-        .create_candle("", "", Uuid::new_v4())
+        .create_candle(
+            &payload.title,
+            payload.version,
+            payload.price,
+            payload.color_id,
+        )
         .await
     {
         Ok(candles_id) => (
