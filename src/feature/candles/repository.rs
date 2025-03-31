@@ -50,7 +50,7 @@ impl CandlesRepositoryTrait for CandlesRepository {
         color_id: Uuid,
     ) -> Result<Uuid, sqlx::Error> {
         let query = r#"
-            INSERT INTO candles (title, version, color_id) VALUES ($1,$2, $3, $4) RETURNING id
+            INSERT INTO candles (title,price, version, color_id) VALUES ($1,$2, $3, $4) RETURNING id
         "#;
         let candle_id: Uuid = sqlx::query_scalar(query)
             .bind(title)

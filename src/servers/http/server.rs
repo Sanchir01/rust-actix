@@ -4,8 +4,9 @@ use tokio::net::TcpListener;
 use tower::ServiceBuilder;
 use tower_http::cors::{Any, CorsLayer};
 
-use crate::app::handlers::Handlers;
+use crate::app::handlers::{self, Handlers};
 use crate::feature::candles::handler::{create_candle_handler, get_all_candles};
+use crate::feature::colors::handler::{create_color_handler, get_all_color_handler};
 use crate::feature::user::handler::{create_user_handler, get_users};
 use crate::servers::http::middleware::auth_middleware;
 use crate::utils::swagger::setup_swagger;
@@ -27,8 +28,6 @@ pub async fn run_http_server(handlers: Arc<Handlers>) {
 
     let _swagger = setup_swagger();
 
-    let middleware_builder = ServiceBuilder::new().layer(middleware::from_fn(auth_middleware));
-
     let auth_routes = Router::new()
         .route("/login", post(create_user_handler))
         .with_state(handlers.users_handler.clone());
@@ -37,12 +36,17 @@ pub async fn run_http_server(handlers: Arc<Handlers>) {
         .route("/candles", get(get_all_candles).post(create_candle_handler))
         .with_state(handlers.candles_handler.clone());
 
-    let protected_routes = Router::new()
-        .route("/users", get(get_users))
-        .layer(middleware_builder)
-        .with_state(handlers.users_handler.clone());
+    let colors_routes = Router::new()
+        .route("/colors", get(get_all_color_handler))
+        .with_state(handlers.color_handler.clone());
 
-    let public_routes = Router::new().merge(candles_routes).merge(auth_routes);
+    let protected_routes = private_routes(handlers.clone());
+
+    let public_routes = Router::new()
+        .merge(candles_routes)
+        .merge(auth_routes)
+        .merge(colors_routes);
+
     let app = Router::new()
         .nest("/api", public_routes)
         .nest("/api/private", protected_routes)
@@ -58,4 +62,18 @@ fn get_cors() -> CorsLayer {
         .allow_origin(Any)
         .allow_methods(Any)
         .allow_headers(Any)
+}
+
+fn private_routes(handlers: Arc<Handlers>) -> Router {
+    let middleware_builder = ServiceBuilder::new().layer(middleware::from_fn(auth_middleware));
+    let private_users = Router::new().route("/users", get(get_users));
+    let private_colors = Router::new()
+        .route("/colors", post(create_color_handler))
+        .with_state(handlers.color_handler.clone());
+
+    Router::new()
+        .merge(private_users)
+        .merge(private_colors)
+        .layer(middleware_builder)
+        .with_state(handlers.users_handler.clone())
 }
