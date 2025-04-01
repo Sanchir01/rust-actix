@@ -17,6 +17,7 @@ pub trait UserServiceTrait {
         title: &str,
         slug: &str,
     ) -> Result<(Uuid, Cookie<'static>, Cookie<'static>), Box<dyn std::error::Error>>;
+    async fn get_user_by_id_service(&self, id: Uuid) -> Result<User, sqlx::Error>;
 }
 
 #[derive(Clone)]
@@ -45,5 +46,8 @@ impl UserServiceTrait for UserService {
         let refresh_token = create_cookie(&jwt, "refreshToken");
         let access_token = create_cookie(&jwt, "accessToken");
         Ok((user_id, refresh_token, access_token))
+    }
+    async fn get_user_by_id_service(&self, id: Uuid) -> Result<User, sqlx::Error> {
+        self.user_repo.get_user_by_id(id).await
     }
 }

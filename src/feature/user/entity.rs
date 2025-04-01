@@ -11,7 +11,11 @@ pub struct User {
     #[schema(value_type = String, format = Uuid)]
     id: Uuid,
     title: String,
+    email: String,
+    password: String,
+    phone: String,
     slug: String,
+    verions: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
