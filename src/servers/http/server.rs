@@ -5,7 +5,8 @@ use tower::ServiceBuilder;
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::app::handlers::Handlers;
-use crate::feature::candles::handler::{create_candle_handler, get_all_candles};
+use crate::feature::candles::handler::get_all_candles;
+use crate::feature::colors::handler::get_all_colors_handler;
 use crate::feature::user::handler::{create_user_handler, get_users};
 use crate::servers::http::middleware::auth_middleware;
 use crate::utils::swagger::setup_swagger;
@@ -34,21 +35,27 @@ pub async fn run_http_server(handlers: Arc<Handlers>) {
         .with_state(handlers.users_handler.clone());
 
     let candles_routes = Router::new()
-        .route("/candles", get(get_all_candles).post(create_candle_handler))
+        .route("/candles", get(get_all_candles))
         .with_state(handlers.candles_handler.clone());
+
+    let colors_handler = Router::new()
+        .route("/colors", get(get_all_colors_handler))
+        .with_state(handlers.color_handler.clone());
 
     let protected_routes = Router::new()
         .route("/users", get(get_users))
         .layer(middleware_builder)
         .with_state(handlers.users_handler.clone());
 
-    let public_routes = Router::new().merge(candles_routes).merge(auth_routes);
+    let public_routes = Router::new()
+        .merge(candles_routes)
+        .merge(auth_routes)
+        .merge(colors_handler);
+
     let app = Router::new()
         .nest("/api", public_routes)
         .nest("/api/private", protected_routes)
         .layer(get_cors());
-
-    println!("🚀 Server running on http://localhost:5000");
 
     axum::serve(listener, app).await.unwrap();
 }

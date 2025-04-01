@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
-use axum::{extract::State, response::IntoResponse};
+use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
 
-use super::service::ColorService;
+use super::service::{ColorService, ColorServiceTrait};
 
 #[derive(Clone)]
 pub struct ColorHandler {
@@ -16,13 +16,19 @@ impl ColorHandler {
 }
 #[utoipa::path(
     get,
-    path = "/api/candles",
+    path = "/api/colors",
     responses(
         (status = 201, description = "User created successfully"),
         (status = 400, description = "Bad request")
     ),
-    tag = "candles"
+    tag = "colors"
 )]
-pub async fn get_all_candles(State(handler): State<Arc<ColorHandler>>) -> impl IntoResponse {
-    "sdasd"
+pub async fn get_all_colors_handler(State(handler): State<Arc<ColorHandler>>) -> impl IntoResponse {
+    match handler.color_service.get_all_colors_service().await {
+        Ok(users) => (StatusCode::OK, Json(users)),
+        Err(e) => {
+            eprintln!("Error getting users: {:?}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(vec![]))
+        }
+    }
 }
