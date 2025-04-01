@@ -12,10 +12,12 @@ use uuid::Uuid;
 #[cfg_attr(test, automock)]
 pub trait UserServiceTrait {
     async fn get_users(&self) -> Result<Vec<User>, sqlx::Error>;
-    async fn create_user(
+    async fn create_user_service(
         &self,
         title: &str,
         slug: &str,
+        email: &str,
+        phone: &str,
     ) -> Result<(Uuid, Cookie<'static>, Cookie<'static>), Box<dyn std::error::Error>>;
     async fn get_user_by_id_service(&self, id: Uuid) -> Result<User, sqlx::Error>;
 }
@@ -34,17 +36,21 @@ impl UserServiceTrait for UserService {
     async fn get_users(&self) -> Result<Vec<User>, sqlx::Error> {
         self.user_repo.get_all_users().await
     }
-
-    async fn create_user(
+    async fn create_user_service(
         &self,
         title: &str,
         slug: &str,
+        email: &str,
+        phone: &str,
     ) -> Result<(Uuid, Cookie<'static>, Cookie<'static>), Box<dyn std::error::Error>> {
-        let user_id = self.user_repo.create_user(title, slug).await?;
+        let user_id = self
+            .user_repo
+            .create_user(title, slug, email, phone)
+            .await?;
         let expiration = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + 3600;
         let jwt = create_jwt(user_id, title.to_string(), slug.to_string(), expiration)?;
-        let refresh_token = create_cookie(&jwt, "refreshToken");
-        let access_token = create_cookie(&jwt, "accessToken");
+        let refresh_token = create_cookie(&jwt, "refreshToken", 3600 * 14 * 24);
+        let access_token = create_cookie(&jwt, "accessToken", 3600);
         Ok((user_id, refresh_token, access_token))
     }
     async fn get_user_by_id_service(&self, id: Uuid) -> Result<User, sqlx::Error> {

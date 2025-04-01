@@ -33,4 +33,8 @@ pub struct CreateUserRequest {
     pub title: String,
     #[validate(length(min = 1))]
     pub slug: String,
+    #[validate(length(min = 1))]
+    pub email: String,
+    #[validate(length(min = 1))]
+    pub password: String,
 }

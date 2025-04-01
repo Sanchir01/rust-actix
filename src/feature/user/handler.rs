@@ -1,14 +1,15 @@
 use super::service::{UserService, UserServiceTrait};
-use crate::feature::user::entity::CreateUserRequest;
+use crate::feature::{candles::handler, user::entity::CreateUserRequest};
 use axum::{
     Json,
-    extract::State,
+    extract::{Path, State},
     http::{HeaderValue, StatusCode, header},
     response::{IntoResponse, Response},
 };
 use serde::Deserialize;
 use std::sync::Arc;
 use utoipa::ToSchema;
+use uuid::Uuid;
 use validator::Validate;
 
 #[derive(Deserialize, ToSchema)]
@@ -49,7 +50,12 @@ pub async fn create_user_handler(
 
     match handler
         .user_service
-        .create_user(&payload.title, &payload.slug)
+        .create_user_service(
+            &payload.title,
+            &payload.slug,
+            &payload.email,
+            &payload.password,
+        )
         .await
     {
         Ok((user_id, refresh_token, access_token)) => {
@@ -90,6 +96,31 @@ pub async fn get_users(State(handler): State<Arc<UserHandler>>) -> impl IntoResp
         Err(e) => {
             eprintln!("Error getting users: {:?}", e);
             (StatusCode::INTERNAL_SERVER_ERROR, Json(vec![]))
+        }
+    }
+}
+
+#[utoipa::path(
+    get,
+    path = "/api/users/:id",
+    responses(
+        (status = 201, description = "User created successfully"),
+        (status = 400, description = "Bad request")
+    ),
+    tag = "users"
+)]
+pub async fn get_user_by_id_handler(
+    State(handler): State<Arc<UserHandler>>,
+    Path(user_id): Path<Uuid>,
+) -> Result<impl IntoResponse, impl IntoResponse> {
+    match handler.user_service.get_user_by_id_service(user_id).await {
+        Ok(user) => Ok((StatusCode::OK, Json(user))),
+        Err(e) => {
+            eprintln!("Error getting user: {:?}", e);
+            let error_response = Json(serde_json::json!({
+                "error": "Internal server error"
+            }));
+            Err((StatusCode::INTERNAL_SERVER_ERROR, error_response))
         }
     }
 }

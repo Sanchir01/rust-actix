@@ -31,13 +31,13 @@ pub fn create_jwt(
     Ok(token)
 }
 
-pub fn create_cookie(token: &str, name: &str) -> Cookie<'static> {
+pub fn create_cookie(token: &str, name: &str, exrire: i64) -> Cookie<'static> {
     let mut cookie = Cookie::new(name.to_string(), token.to_string());
     cookie.set_path("/");
     cookie.set_secure(true);
     cookie.set_http_only(true);
     cookie.set_same_site(SameSite::Lax);
-    cookie.set_max_age(Duration::seconds(3600));
+    cookie.set_max_age(Duration::seconds(exrire));
 
     cookie
 }

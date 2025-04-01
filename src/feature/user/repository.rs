@@ -13,7 +13,6 @@ pub trait UserRepositoryTrait {
         slug: &str,
         email: &str,
         phone: &str,
-        role: &str,
     ) -> Result<Uuid, sqlx::Error>;
     async fn get_user_by_id(&self, id: Uuid) -> Result<User, sqlx::Error>;
 }
@@ -48,18 +47,16 @@ impl UserRepositoryTrait for UserRepository {
         slug: &str,
         email: &str,
         phone: &str,
-        role: &str,
     ) -> Result<Uuid, sqlx::Error> {
         let query = r#"
-            INSERT  INTO users (title, slug,email,phone,role)
-            VALUES ($1, $2, $3, $4, $5) RETURNING id
+            INSERT  INTO users (title, slug,email,phone)
+            VALUES ($1, $2, $3, $4) RETURNING id
             "#;
         let user: Uuid = sqlx::query_scalar(query)
             .bind(title)
             .bind(slug)
             .bind(email)
             .bind(phone)
-            .bind(role)
             .fetch_one(&self.user_repo)
             .await
             .map_err(|e| {
