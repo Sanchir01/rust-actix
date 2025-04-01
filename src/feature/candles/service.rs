@@ -19,18 +19,18 @@ pub trait CandlesServiceTrait {
 
 #[derive(Clone)]
 pub struct CandlesService {
-    candles_service: Arc<CandlesRepository>,
+    candles_repo: Arc<CandlesRepository>,
 }
 
 impl CandlesService {
-    pub fn new_candles_services(candles_service: Arc<CandlesRepository>) -> Self {
-        Self { candles_service }
+    pub fn new_candles_services(candles_repo: Arc<CandlesRepository>) -> Self {
+        Self { candles_repo }
     }
 }
 
 impl CandlesServiceTrait for CandlesService {
     async fn get_all_candles(&self) -> Result<Vec<CandlesStruct>, sqlx::Error> {
-        self.candles_service.get_all_candles().await
+        self.candles_repo.get_all_candles().await
     }
     async fn create_candle(
         &self,
@@ -40,7 +40,7 @@ impl CandlesServiceTrait for CandlesService {
         color_id: Uuid,
     ) -> Result<Uuid, Box<dyn std::error::Error>> {
         let user_id = self
-            .candles_service
+            .candles_repo
             .create_candle(title, price, version, color_id)
             .await?;
 

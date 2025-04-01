@@ -4,7 +4,6 @@ use super::{
 };
 use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
 use std::sync::Arc;
-use uuid::Uuid;
 use validator::Validate;
 
 #[derive(Clone)]

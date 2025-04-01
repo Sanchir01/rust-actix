@@ -42,6 +42,7 @@ validator = { version = "0.20", features = ["derive"] }
 validator_derive = "0.20"
 mockall = "0.13.1"
 tokio-test = "0.4.4"
+slug = "0.1.6"
 
 [target.'cfg(not(target_os = "windows"))'.dependencies]
 jemallocator = { version = "0.5.4" }
