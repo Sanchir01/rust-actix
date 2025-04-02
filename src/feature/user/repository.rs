@@ -13,6 +13,7 @@ pub trait UserRepositoryTrait {
         slug: &str,
         email: &str,
         phone: &str,
+        password: &str,
     ) -> Result<Uuid, sqlx::Error>;
     async fn get_user_by_id(&self, id: Uuid) -> Result<User, sqlx::Error>;
 }
@@ -47,6 +48,7 @@ impl UserRepositoryTrait for UserRepository {
         slug: &str,
         email: &str,
         phone: &str,
+        password: &str,
     ) -> Result<Uuid, sqlx::Error> {
         let query = r#"
             INSERT  INTO users (title, slug,email,phone)

@@ -5,6 +5,7 @@ use super::jwt::create_jwt;
 use super::repository::{UserRepository, UserRepositoryTrait};
 use crate::feature::user::entity::User;
 use crate::feature::user::jwt::create_cookie;
+use crate::utils::lib::hashing_passwortd;
 use mockall::{automock, predicate::*};
 use tower_cookies::Cookie;
 use uuid::Uuid;
@@ -18,6 +19,7 @@ pub trait UserServiceTrait {
         slug: &str,
         email: &str,
         phone: &str,
+        password: &str,
     ) -> Result<(Uuid, Cookie<'static>, Cookie<'static>), Box<dyn std::error::Error>>;
     async fn get_user_by_id_service(&self, id: Uuid) -> Result<User, sqlx::Error>;
 }
@@ -42,7 +44,10 @@ impl UserServiceTrait for UserService {
         slug: &str,
         email: &str,
         phone: &str,
+        password: &str,
     ) -> Result<(Uuid, Cookie<'static>, Cookie<'static>), Box<dyn std::error::Error>> {
+        let hash = hashing_passwortd(password);
+        println!("{:?}", hash);
         let user_id = self
             .user_repo
             .create_user(title, slug, email, phone)

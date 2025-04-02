@@ -3,10 +3,11 @@ use argon2::{
     password_hash::{PasswordHash, PasswordHasher, SaltString, rand_core::OsRng},
 };
 
-use super::errors::ErrorMessage;
+use super::errors_message::ErrorMessage;
 
 const MAX_PASSWORD_LENGTH: usize = 64;
-pub fn hash(password: impl Into<String>) -> Result<String, ErrorMessage> {
+
+pub fn hashing_passwortd(password: impl Into<String>) -> Result<String, ErrorMessage> {
     let password = password.into();
 
     if password.is_empty() {
