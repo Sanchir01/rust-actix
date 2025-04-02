@@ -15,7 +15,7 @@ pub struct User {
     password: String,
     phone: String,
     slug: String,
-    verions: i64,
+    version: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -33,7 +33,7 @@ pub struct CreateUserRequest {
     pub title: String,
     #[validate(length(min = 1))]
     pub slug: String,
-    #[validate(length(min = 1))]
+    #[validate(email)]
     pub email: String,
     #[validate(length(min = 1))]
     pub password: String,

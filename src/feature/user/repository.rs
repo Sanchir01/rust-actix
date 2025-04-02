@@ -29,8 +29,8 @@ impl UserRepository {
 impl UserRepositoryTrait for UserRepository {
     async fn get_all_users(&self) -> Result<Vec<User>, sqlx::Error> {
         let query = r#"
-            SELECT id, title, slug
-            FROM public.users
+            SELECT id, title, email,phone,password,phone,slug,version
+            FROM users
         "#;
         let users = sqlx::query_as(query)
             .fetch_all(&self.user_repo)

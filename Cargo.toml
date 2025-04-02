@@ -7,14 +7,14 @@ edition = "2024"
 tokio = { version = "1.44.0", features = ["full"] }
 serde = { version = "1.0.219", features = ["derive"] }
 sqlx = { version = "0.8.3", features = [
-  "postgres",
-  "runtime-tokio-rustls",
-  "derive",
-  "uuid",
+    "postgres",
+    "runtime-tokio-rustls",
+    "derive",
+    "uuid",
 ] }
 dotenvy = "0.15.7"
 config = "0.15.9"
-axum = "0.8.1"
+axum = "0.8.3"
 utoipa = { version = "4.2.3", features = ["axum_extras", "uuid"] }
 utoipa-swagger-ui = { version = "6.0.0", features = ["axum"] }
 slog = "2.7.0"
@@ -43,6 +43,7 @@ validator_derive = "0.20"
 mockall = "0.13.1"
 tokio-test = "0.4.4"
 slug = "0.1.6"
+rand = "0.9.0"
 
 [target.'cfg(not(target_os = "windows"))'.dependencies]
 jemallocator = { version = "0.5.4" }
