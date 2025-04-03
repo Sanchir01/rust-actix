@@ -29,7 +29,7 @@ pub async fn run_http_server(handlers: Arc<Handlers>) {
     let _swagger = setup_swagger();
 
     let auth_routes = Router::new()
-        .route("/login", post(create_user_handler))
+        .route("/register", post(create_user_handler))
         .with_state(handlers.users_handler.clone());
 
     let candles_routes = Router::new()

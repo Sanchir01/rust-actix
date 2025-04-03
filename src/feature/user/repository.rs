@@ -68,6 +68,12 @@ impl UserRepositoryTrait for UserRepository {
             })?;
         Ok(user)
     }
+    async fn get_user_by_phone(&self, phone: &str) -> Result<User, ErrorMessage> {
+        let query = r#"
+            SELECT id, title, email,phone,password,phone,slug,version
+            FROM users WHERE phone = $1
+        "#;
+    }
     async fn get_user_by_id(&self, id: Uuid) -> Result<User, ErrorMessage> {
         let query = r#"
             SELECT id, title, email,phone,password,phone,slug,version
