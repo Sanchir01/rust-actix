@@ -7,7 +7,7 @@ use tower_http::cors::{Any, CorsLayer};
 use crate::app::handlers::Handlers;
 use crate::feature::candles::handler::get_all_candles;
 use crate::feature::colors::handler::{create_color_handler, get_all_color_handler};
-use crate::feature::user::handler::{create_user_handler, get_users};
+use crate::feature::user::handler::{create_user_handler, get_user_by_id_handler, get_users};
 use crate::servers::http::middleware::auth_middleware;
 use crate::utils::swagger::setup_swagger;
 use axum::{
@@ -66,7 +66,7 @@ fn private_routes(handlers: Arc<Handlers>) -> Router {
     let middleware_builder = ServiceBuilder::new().layer(middleware::from_fn(auth_middleware));
     let private_users = Router::new()
         .route("/users", get(get_users))
-        .route("/users/{id}", get(get_users));
+        .route("/users/{id}", get(get_user_by_id_handler));
 
     let private_colors = Router::new()
         .route("/colors", post(create_color_handler))

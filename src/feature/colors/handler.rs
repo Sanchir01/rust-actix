@@ -1,9 +1,10 @@
+use crate::utils::lib::format_validation_errors;
+
 use super::entity::CreateColorRequest;
 use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
-use serde_json::{Value, json};
+use serde_json::json;
 use std::sync::Arc;
-use validator::{Validate, ValidationErrors};
-
+use validator::Validate;
 
 use super::service::{ColorService, ColorServiceTrait};
 
@@ -72,18 +73,3 @@ pub async fn create_color_handler(
         ),
     }
 }
-
-fn format_validation_errors(errors: &ValidationErrors) -> Value {
-    let mut error_map = serde_json::Map::new();
-
-    for (field, errs) in errors.field_errors() {
-        let messages: Vec<String> = errs
-            .iter()
-            .filter_map(|e| e.message.as_ref().map(|msg| msg.to_string()))
-            .collect();
-        error_map.insert(field.to_string(), json!(messages));
-    }
-
-    json!(error_map)
-}
-

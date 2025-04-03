@@ -60,7 +60,6 @@ impl ColorRepositoryTrait for ColorRepository {
                 eprintln!("error creating: {:?}", err);
                 err
             })?;
-
         Ok(colors)
     }
 }

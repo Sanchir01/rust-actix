@@ -1,6 +1,8 @@
+use std::fmt;
+
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub enum ErrorMessage {
     EmptyPassword,
     ExceededMaxPasswordLength(usize),
@@ -11,12 +13,15 @@ pub enum ErrorMessage {
     EmailExist,
     UserNoLongerExist,
     TokenNotProvided,
+    NotFoundUserId,
 }
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ErrorResponse {
     pub status: String,
     pub messgae: String,
 }
+
 impl ErrorMessage {
     fn to_str(&self) -> String {
         match self {
@@ -35,6 +40,12 @@ impl ErrorMessage {
             ErrorMessage::TokenNotProvided => {
                 "You are not logged in, please provide a token".to_string()
             }
+            ErrorMessage::NotFoundUserId => "Not Found User Id".to_string(),
         }
+    }
+}
+impl fmt::Display for ErrorMessage {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.to_str())
     }
 }

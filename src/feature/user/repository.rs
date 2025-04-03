@@ -1,7 +1,7 @@
-use crate::feature::user::entity::User;
+use crate::{feature::user::entity::User, utils::errors_message::ErrorMessage};
 #[cfg(test)]
 use mockall::{automock, predicate::*};
-use sqlx::{Pool, Postgres, query_scalar};
+use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
 #[cfg_attr(test, automock)]
@@ -15,7 +15,7 @@ pub trait UserRepositoryTrait {
         phone: &str,
         password: &str,
     ) -> Result<Uuid, sqlx::Error>;
-    async fn get_user_by_id(&self, id: Uuid) -> Result<User, sqlx::Error>;
+    async fn get_user_by_id(&self, id: Uuid) -> Result<User, ErrorMessage>;
 }
 #[derive(Clone)]
 pub struct UserRepository {
@@ -51,14 +51,15 @@ impl UserRepositoryTrait for UserRepository {
         password: &str,
     ) -> Result<Uuid, sqlx::Error> {
         let query = r#"
-            INSERT  INTO users (title, slug,email,phone)
-            VALUES ($1, $2, $3, $4) RETURNING id
+            INSERT  INTO users (title, slug,email,phone,password)
+            VALUES ($1, $2, $3, $4, $5) RETURNING id
             "#;
         let user: Uuid = sqlx::query_scalar(query)
             .bind(title)
             .bind(slug)
             .bind(email)
             .bind(phone)
+            .bind(password)
             .fetch_one(&self.user_repo)
             .await
             .map_err(|e| {
@@ -67,9 +68,10 @@ impl UserRepositoryTrait for UserRepository {
             })?;
         Ok(user)
     }
-    async fn get_user_by_id(&self, id: Uuid) -> Result<User, sqlx::Error> {
+    async fn get_user_by_id(&self, id: Uuid) -> Result<User, ErrorMessage> {
         let query = r#"
-            SELECT id, title, version,slug FROM public.users WHERE id = $1
+            SELECT id, title, email,phone,password,phone,slug,version
+            FROM users WHERE id = $1
         "#;
 
         let user = sqlx::query_as(query)
@@ -77,8 +79,11 @@ impl UserRepositoryTrait for UserRepository {
             .fetch_one(&self.user_repo)
             .await
             .map_err(|e| {
-                eprint!("Error fetching user by id:{:?}", e);
-                e
+                if matches!(e, sqlx::Error::RowNotFound) {
+                    ErrorMessage::NotFoundUserId
+                } else {
+                    ErrorMessage::TokenNotProvided
+                }
             })?;
         Ok(user)
     }

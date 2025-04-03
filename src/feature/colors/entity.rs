@@ -9,7 +9,7 @@ use validator_derive::Validate;
 #[ts(export)]
 pub struct ColorsStruct {
     pub id: Uuid,
-    pub name: String,
+    pub title: String,
     pub slug: String,
     pub version: i64,
 }

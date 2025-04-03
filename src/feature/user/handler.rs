@@ -1,5 +1,5 @@
 use super::service::{UserService, UserServiceTrait};
-use crate::feature::{candles::handler, user::entity::CreateUserRequest};
+use crate::{feature::user::entity::CreateUserRequest, utils::errors_message::ErrorMessage};
 use axum::{
     Json,
     extract::{Path, State},
@@ -54,6 +54,7 @@ pub async fn create_user_handler(
             &payload.title,
             &payload.slug,
             &payload.email,
+            &payload.phone,
             &payload.password,
         )
         .await
@@ -112,14 +113,17 @@ pub async fn get_users(State(handler): State<Arc<UserHandler>>) -> impl IntoResp
 pub async fn get_user_by_id_handler(
     State(handler): State<Arc<UserHandler>>,
     Path(user_id): Path<Uuid>,
-) -> Result<impl IntoResponse, impl IntoResponse> {
+) -> impl IntoResponse {
     match handler.user_service.get_user_by_id_service(user_id).await {
         Ok(user) => Ok((StatusCode::OK, Json(user))),
         Err(e) => {
             eprintln!("Error getting user: {:?}", e);
             let error_response = Json(serde_json::json!({
-                "error": "Internal server error"
+                "error": e
             }));
+            if matches!(e, ErrorMessage::NotFoundUserId) {
+                return Err((StatusCode::NOT_FOUND, error_response));
+            }
             Err((StatusCode::INTERNAL_SERVER_ERROR, error_response))
         }
     }
