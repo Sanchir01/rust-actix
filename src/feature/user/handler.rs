@@ -1,4 +1,7 @@
-use super::service::{UserService, UserServiceTrait};
+use super::{
+    entity::GetUserByPhoneRequest,
+    service::{UserService, UserServiceTrait},
+};
 use crate::{feature::user::entity::CreateUserRequest, utils::errors_message::ErrorMessage};
 use axum::{
     Json,
@@ -125,6 +128,35 @@ pub async fn get_user_by_id_handler(
                 return Err((StatusCode::NOT_FOUND, error_response));
             }
             Err((StatusCode::INTERNAL_SERVER_ERROR, error_response))
+        }
+    }
+}
+pub async fn login_handler(
+    State(handler): State<Arc<UserHandler>>,
+    Json(payload): Json<GetUserByPhoneRequest>,
+) -> impl IntoResponse {
+    if let Err(validation_errors) = payload.validate() {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({ "errors": validation_errors.to_string() })),
+        )
+            .into_response();
+    }
+    match handler
+        .user_service
+        .get_user_by_phone_service(&payload.phone, &payload.password)
+        .await
+    {
+        Ok(user) => (StatusCode::OK, Json(user)).into_response(),
+        Err(e) => {
+            eprintln!("Error getting user: {:?}", e);
+            let error_response = Json(serde_json::json!({
+                "error": e
+            }));
+            if matches!(e, ErrorMessage::NotFoundUserPhone) {
+                return (StatusCode::NOT_FOUND, error_response).into_response();
+            }
+            (StatusCode::INTERNAL_SERVER_ERROR, error_response).into_response()
         }
     }
 }

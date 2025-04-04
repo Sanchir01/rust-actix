@@ -6,7 +6,7 @@ use super::repository::{UserRepository, UserRepositoryTrait};
 use crate::feature::user::entity::User;
 use crate::feature::user::jwt::create_cookie;
 use crate::utils::errors_message::ErrorMessage;
-use crate::utils::lib::hashing_passwortd;
+use crate::utils::lib::{compare_password, hashing_passwortd};
 use mockall::{automock, predicate::*};
 use std::error::Error;
 use tower_cookies::Cookie;
@@ -22,6 +22,11 @@ pub trait UserServiceTrait {
         phone: &str,
         password: &str,
     ) -> Result<(Uuid, Cookie<'static>, Cookie<'static>), Box<dyn std::error::Error>>;
+    async fn get_user_by_phone_service(
+        &self,
+        phone: &str,
+        password: &str,
+    ) -> Result<User, ErrorMessage>;
     async fn get_user_by_id_service(&self, id: Uuid) -> Result<User, ErrorMessage>;
 }
 
@@ -47,7 +52,7 @@ impl UserServiceTrait for UserService {
         phone: &str,
         password: &str,
     ) -> Result<(Uuid, Cookie<'static>, Cookie<'static>), Box<dyn std::error::Error>> {
-        let hash = match hashing_passwortd(password) {
+        let hash = match hashing_passwortd(password.to_owned()) {
             Ok(hashed_password) => hashed_password,
             Err(e) => {
                 println!("Error hashing password: {:?}", e);
@@ -64,6 +69,25 @@ impl UserServiceTrait for UserService {
         let refresh_token = create_cookie(&jwt, "refreshToken", 3600 * 14 * 24);
         let access_token = create_cookie(&jwt, "accessToken", 3600);
         Ok((user_id, refresh_token, access_token))
+    }
+    async fn get_user_by_phone_service(
+        &self,
+        phone: &str,
+        password: &str,
+    ) -> Result<User, ErrorMessage> {
+        let user = self.user_repo.get_user_by_phone(phone).await?;
+        let user_password = &user.password;
+        let right_password = match compare_password(password, user_password) {
+            Ok(true) => true,
+            Ok(false) => return Err(ErrorMessage::EmptyPassword),
+            Err(_) => return Err(ErrorMessage::HashingError),
+        };
+
+        if right_password {
+            Ok(user)
+        } else {
+            Err(ErrorMessage::EmptyPassword)
+        }
     }
     async fn get_user_by_id_service(&self, id: Uuid) -> Result<User, ErrorMessage> {
         self.user_repo.get_user_by_id(id).await

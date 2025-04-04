@@ -9,13 +9,13 @@ use validator_derive::Validate;
 #[ts(export)]
 pub struct User {
     #[schema(value_type = String, format = Uuid)]
-    id: Uuid,
-    title: String,
-    email: String,
-    password: String,
-    phone: String,
-    slug: String,
-    version: i64,
+    pub id: Uuid,
+    pub title: String,
+    pub email: String,
+    pub password: String,
+    pub phone: String,
+    pub slug: String,
+    pub version: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -24,6 +24,15 @@ pub struct Claims {
     pub title: String,
     pub slug: String,
     pub exp: usize,
+}
+
+#[derive(Debug, Deserialize, Validate, TS)]
+#[ts(export)]
+pub struct GetUserByPhoneRequest {
+    #[validate(length(min = 1))]
+    pub password: String,
+    #[validate(length(min = 1))]
+    pub phone: String,
 }
 
 #[derive(Debug, Deserialize, Validate, TS)]

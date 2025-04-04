@@ -1,6 +1,6 @@
 use argon2::{
-    Argon2,
-    password_hash::{PasswordHash, PasswordHasher, SaltString, rand_core::OsRng},
+    Argon2, PasswordHash, PasswordVerifier,
+    password_hash::{PasswordHasher, SaltString, rand_core::OsRng},
 };
 use serde_json::{Value, json};
 use validator::ValidationErrors;
@@ -9,9 +9,7 @@ use super::errors_message::ErrorMessage;
 
 const MAX_PASSWORD_LENGTH: usize = 64;
 
-pub fn hashing_passwortd(password: impl Into<String>) -> Result<String, ErrorMessage> {
-    let password = password.into();
-
+pub fn hashing_passwortd(password: String) -> Result<String, ErrorMessage> {
     if password.is_empty() {
         return Err(ErrorMessage::EmptyPassword);
     }
@@ -27,6 +25,24 @@ pub fn hashing_passwortd(password: impl Into<String>) -> Result<String, ErrorMes
         .to_string();
 
     Ok(hashed_password)
+}
+
+pub fn compare_password(password: &str, hashed_pasword: &str) -> Result<bool, ErrorMessage> {
+    if password.is_empty() {
+        return Err(ErrorMessage::EmptyPassword);
+    }
+
+    if password.len() > MAX_PASSWORD_LENGTH {
+        return Err(ErrorMessage::ExceededMaxPasswordLength(MAX_PASSWORD_LENGTH));
+    }
+
+    let parsed_hash =
+        PasswordHash::new(hashed_pasword).map_err(|_| ErrorMessage::InvalidHashFormat)?;
+
+    let password_matched = Argon2::default()
+        .verify_password(password.as_bytes(), &parsed_hash)
+        .map_or(false, |_| true);
+    Ok(password_matched)
 }
 pub fn format_validation_errors(errors: &ValidationErrors) -> Value {
     let mut error_map = serde_json::Map::new();

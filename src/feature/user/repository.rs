@@ -15,6 +15,7 @@ pub trait UserRepositoryTrait {
         phone: &str,
         password: &str,
     ) -> Result<Uuid, sqlx::Error>;
+    async fn get_user_by_phone(&self, phone: &str) -> Result<User, ErrorMessage>;
     async fn get_user_by_id(&self, id: Uuid) -> Result<User, ErrorMessage>;
 }
 #[derive(Clone)]
@@ -73,6 +74,17 @@ impl UserRepositoryTrait for UserRepository {
             SELECT id, title, email,phone,password,phone,slug,version
             FROM users WHERE phone = $1
         "#;
+        let user = sqlx::query_as(query)
+            .bind(phone)
+            .fetch_one(&self.user_repo)
+            .await
+            .map_err(|e| {
+                if matches!(e, sqlx::Error::RowNotFound) {
+                    return ErrorMessage::NotFoundUserId;
+                }
+                ErrorMessage::EmailExist
+            })?;
+        Ok(user)
     }
     async fn get_user_by_id(&self, id: Uuid) -> Result<User, ErrorMessage> {
         let query = r#"

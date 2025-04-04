@@ -7,7 +7,9 @@ use tower_http::cors::{Any, CorsLayer};
 use crate::app::handlers::Handlers;
 use crate::feature::candles::handler::get_all_candles;
 use crate::feature::colors::handler::{create_color_handler, get_all_color_handler};
-use crate::feature::user::handler::{create_user_handler, get_user_by_id_handler, get_users};
+use crate::feature::user::handler::{
+    create_user_handler, get_user_by_id_handler, get_users, login_handler,
+};
 use crate::servers::http::middleware::auth_middleware;
 use crate::utils::swagger::setup_swagger;
 use axum::{
@@ -30,6 +32,7 @@ pub async fn run_http_server(handlers: Arc<Handlers>) {
 
     let auth_routes = Router::new()
         .route("/register", post(create_user_handler))
+        .route("/login", post(login_handler))
         .with_state(handlers.users_handler.clone());
 
     let candles_routes = Router::new()

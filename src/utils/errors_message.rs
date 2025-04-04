@@ -12,6 +12,7 @@ pub enum ErrorMessage {
     WrongCredentials,
     EmailExist,
     UserNoLongerExist,
+    NotFoundUserPhone,
     TokenNotProvided,
     NotFoundUserId,
 }
@@ -41,6 +42,7 @@ impl ErrorMessage {
                 "You are not logged in, please provide a token".to_string()
             }
             ErrorMessage::NotFoundUserId => "Not Found User Id".to_string(),
+            ErrorMessage::NotFoundUserPhone => "Not Found User Phone".to_string(),
         }
     }
 }
